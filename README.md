@@ -73,6 +73,12 @@ En Google Colab (entorno de ejecución con GPU):
 !python -m experiments.run_sampling --ckpt runs/qdd_gpu/model.pt --num 100
 ```
 
+**Experimento completo en un solo comando** (entrena, muestrea y deja todo en `results/<nombre>/` para subirlo a git):
+```bash
+python -m experiments.run_local --name gpu01
+```
+Guarda `train.log`, `sample.log`, `samples.png`, `model.pt` y `env.json` (GPU, versiones, duración).
+
 > La ruta de GPU no se ha podido ejecutar todavía: el entorno donde se escribió el código no tiene GPU. En CPU el entrenamiento va a ~0,8 s por paso (lote de 64).
 
 ### Resultado de la Fase 0 (medido sobre los 60 000 dígitos de entrenamiento)

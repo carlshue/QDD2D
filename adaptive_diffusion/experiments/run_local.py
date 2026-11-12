@@ -1,0 +1,88 @@
+"""
+Ejecuta un experimento completo en tu máquina y deja los resultados en
+results/<nombre>/ listos para subir a git.
+
+Uso (desde adaptive_diffusion/):
+    python -m experiments.run_local --name gpu01
+    python -m experiments.run_local --name gpu01 --steps 30000 --batch 256 --lr 1e-3
+
+Genera: train.log, sample.log, samples.png, model.pt y env.json.
+"""
+import argparse
+import json
+import os
+import platform
+import subprocess
+import sys
+import time
+
+
+def run(cmd, log_path):
+    """Lanza un comando mostrando su salida y guardándola en log_path."""
+    print(">>", " ".join(cmd), flush=True)
+    with open(log_path, "w", encoding="utf-8") as log:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        for line in proc.stdout:
+            print(line, end="", flush=True)
+            log.write(line)
+        if proc.wait() != 0:
+            raise SystemExit(f"El comando falló (código {proc.returncode}). Mira {log_path}")
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument("--name", required=True, help="nombre del experimento, p. ej. gpu01")
+    p.add_argument("--steps", type=int, default=30000)
+    p.add_argument("--batch", type=int, default=256)
+    p.add_argument("--lr", type=float, default=1e-3)
+    p.add_argument("--dim", type=int, default=128)
+    p.add_argument("--layers", type=int, default=4)
+    p.add_argument("--heads", type=int, default=4)
+    p.add_argument("--device", default="auto")
+    p.add_argument("--limit", type=int, default=None)
+    p.add_argument("--num_samples", type=int, default=100)
+    p.add_argument("--steps_per_level", type=int, default=8)
+    args = p.parse_args()
+
+    import torch
+    out = os.path.join("results", args.name)
+    os.makedirs(out, exist_ok=True)
+    cuda = torch.cuda.is_available()
+    env = {
+        "fecha": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "sistema": platform.platform(),
+        "python": platform.python_version(),
+        "torch": torch.__version__,
+        "cuda": cuda,
+        "gpu": torch.cuda.get_device_name(0) if cuda else None,
+        "gpu_memoria_gb": round(torch.cuda.get_device_properties(0).total_memory / 2 ** 30, 1) if cuda else None,
+        "args": vars(args),
+    }
+    try:
+        env["commit"] = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    except Exception:
+        env["commit"] = None
+
+    py = [sys.executable, "-m"]
+    train = py + ["experiments.run_training", "--out", out, "--steps", str(args.steps), "--batch", str(args.batch),
+                  "--lr", str(args.lr), "--dim", str(args.dim), "--layers", str(args.layers),
+                  "--heads", str(args.heads), "--device", args.device]
+    if args.limit:
+        train += ["--limit", str(args.limit)]
+    t0 = time.time()
+    run(train, os.path.join(out, "train.log"))
+    env["minutos_entrenamiento"] = round((time.time() - t0) / 60, 1)
+    run(py + ["experiments.run_sampling", "--ckpt", os.path.join(out, "model.pt"), "--num", str(args.num_samples),
+              "--steps_per_level", str(args.steps_per_level), "--device", args.device],
+        os.path.join(out, "sample.log"))
+    with open(os.path.join(out, "env.json"), "w", encoding="utf-8") as f:
+        json.dump(env, f, indent=2, ensure_ascii=False)
+
+    print(f"\nListo. Resultados en {out}. Para subirlos:")
+    print(f"  git add {out}")
+    print(f'  git commit -m "Resultados {args.name}"')
+    print("  git push")
+
+
+if __name__ == "__main__":
+    main()
