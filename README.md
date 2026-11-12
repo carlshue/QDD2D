@@ -91,6 +91,14 @@ Guarda `train.log`, `sample.log`, `samples.png`, `model.pt` y `env.json` (GPU, v
 
 Nodos por nivel (media): 1 · 4 · 15,8 · 28,7 · 64 · 102,5. **La hipótesis H1 se cumple.**
 
+### Resultado del prototipo (`results/gpu01`, RTX 3060, 75 min)
+- 30 000 pasos, lote 256, 0,81 M de parámetros. La pérdida baja de 0,93 a **0,289** y sigue bajando despacio al final.
+- Las 100 muestras condicionadas son dígitos reconocibles de la clase pedida en su gran mayoría (inspección visual, sin métrica todavía). Fallos visibles: algunos trazos rotos, píxeles sueltos y algún dígito deformado.
+- Árboles generados: **208,5 nodos de media** (máx. 289), frente a 216 en los datos y 1024 de la rejilla. 35 evaluaciones de red por lote de muestras.
+- Canonicidad (200 muestras nuevas): el 62 % de los árboles son canónicos; el resto lleva de media 2,5 nodos de más (cuatro hermanos iguales que deberían ser una hoja). Efecto pequeño.
+
+**El hito H1 se cumple.** Falta el baseline (H2) y las métricas (H3) para saber si el árbol compensa.
+
 ---
 
 ## 3. Viabilidad, hitos y pasos
@@ -115,7 +123,7 @@ Nodos por nivel (media): 1 · 4 · 15,8 · 28,7 · 64 · 102,5. **La hipótesis 
 | Hito | Contenido | Criterio de éxito | Estado |
 |---|---|---|---|
 | **H0. Representación** | Quadtree binario exacto, tokens, estadísticas, tests | Reconstrucción exacta; < 30 % de tokens | ✅ hecho |
-| **H1. Prototipo** | Transformer + difusión enmascarada nivel a nivel; entrenar y muestrear | Los tests pasan; dígitos reconocibles tras un entrenamiento completo | 🟡 código hecho; falta entrenamiento largo en GPU |
+| **H1. Prototipo** | Transformer + difusión enmascarada nivel a nivel; entrenar y muestrear | Los tests pasan; dígitos reconocibles tras un entrenamiento completo | ✅ hecho (`results/gpu01`) |
 | **H2. Baseline justo** | Misma red y misma difusión sobre los 1024 píxeles, sin árbol | Baseline entrenado con el mismo presupuesto | ⬜ |
 | **H3. Evaluación** | FID/KID con extractor entrenado en MNIST, NLL, tokens, FLOPs y tiempo por muestra | Tabla calidad frente a coste, árbol vs rejilla | ⬜ |
 | **H4. Ablaciones** | Pasos por nivel, re-enmascarado, variante B, orden de nodos, árbol con profundidad limitada | Saber qué decisiones importan | ⬜ |
