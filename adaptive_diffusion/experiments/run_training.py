@@ -50,6 +50,7 @@ def main():
 
     torch.manual_seed(args.seed)
     device = pick_device(args.device)
+    print("construyendo los árboles (unos 20-60 s)...", flush=True)
     use_amp = device.startswith("cuda") and not args.no_amp
     if device.startswith("cuda"):
         torch.backends.cuda.matmul.allow_tf32 = True
@@ -62,7 +63,7 @@ def main():
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
     name = torch.cuda.get_device_name(device) if device.startswith("cuda") else device
-    print(f"dispositivo {name} | precisión mixta {'sí' if use_amp else 'no'} | {sum(p.numel() for p in model.parameters()) / 1e6:.2f} M parámetros | {len(data)} árboles")
+    print(f"dispositivo {name} | precisión mixta {'sí' if use_amp else 'no'} | {sum(p.numel() for p in model.parameters()) / 1e6:.2f} M parámetros | {len(data)} árboles", flush=True)
 
     os.makedirs(args.out, exist_ok=True)
     step, t0, running = 0, time.time(), 0.0
@@ -82,8 +83,11 @@ def main():
             scaler.update()
             step += 1
             running += loss.item()
+            if step in (1, 10):
+                print(f"paso {step:6d} | pérdida {loss.item():.4f} | {time.time() - t0:.0f}s", flush=True)
             if step % 100 == 0:
-                print(f"paso {step:6d} | pérdida {running / 100:.4f} | {time.time() - t0:.0f}s", flush=True)
+                eta = (time.time() - t0) / step * (args.steps - step) / 60
+                print(f"paso {step:6d} | pérdida {running / 100:.4f} | {time.time() - t0:.0f}s | faltan ~{eta:.0f} min", flush=True)
                 running = 0.0
             if step % args.save_every == 0:
                 save(model, args, data.depth)

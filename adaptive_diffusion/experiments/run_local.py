@@ -63,12 +63,14 @@ def main():
     except Exception:
         env["commit"] = None
 
-    py = [sys.executable, "-m"]
+    py = [sys.executable, "-u", "-m"]   # -u: salida sin búfer, para ver el progreso en directo
     train = py + ["experiments.run_training", "--out", out, "--steps", str(args.steps), "--batch", str(args.batch),
                   "--lr", str(args.lr), "--dim", str(args.dim), "--layers", str(args.layers),
                   "--heads", str(args.heads), "--device", args.device]
     if args.limit:
         train += ["--limit", str(args.limit)]
+    print(f"GPU detectada: {env['gpu']}" if cuda else
+          "AVISO: PyTorch no detecta ninguna GPU; se entrenará en CPU (muy lento).", flush=True)
     t0 = time.time()
     run(train, os.path.join(out, "train.log"))
     env["minutos_entrenamiento"] = round((time.time() - t0) / 60, 1)
