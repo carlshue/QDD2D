@@ -14,9 +14,19 @@ Los modelos de difusión actuales (DDPM, LDM, DiT…) gastan **el mismo cómputo
 4. **Medir el beneficio**: comparar contra un **U-Net denso** (`baseline_unet.py`) en calidad (FID, NLL/bpd) frente a coste (nº de nodos/tokens, FLOPs, memoria).
 5. **Escalar a 3D**: el mismo esquema con octrees para formas/volúmenes, donde la dispersión (>95 % del espacio vacío) hace el ahorro mucho mayor.
 
+### Decisiones de diseño tomadas
+| Decisión | Elección | Motivo |
+|---|---|---|
+| Valores de las hojas | **Binarios** (lleno / vacío) | En 3D interesa la **ocupación** (vóxel lleno o vacío); la malla y los vértices se extraen después (p. ej. Marching Cubes). El 2D binario es el banco de pruebas directo. |
+| Árbol fijo o generado | **Generado** | Con hojas binarias, la estructura del árbol *es* la imagen: un árbol fijo apenas dejaría nada que generar. |
+| Tipo de difusión | **Discreta** (máscaras / D3PM), no gaussiana | Los datos son categóricos. |
+| Primera arquitectura | **Transformer sobre nodos** | Acepta secuencias de longitud variable, es sencillo y es el estándar actual (DiT, OctGPT, BudgetPix). Más adelante se comparará con una CNN dispersa (O-CNN). |
+
+**Formulación concreta.** Cada nodo toma un estado de **3 clases: `{vacío, lleno, subdividir}`**. Una imagen es el conjunto de estados de los nodos que existen, nivel a nivel. El modelo aprende a desenmascarar/desruidar esos estados de grueso a fino: los nodos `subdividir` del nivel *l* crean 4 hijos en el nivel *l+1*.
+
 ### Hipótesis de trabajo
 - H1: un quadtree con umbral adecuado representa MNIST con una fracción pequeña de nodos (≈10–30 %) y error de reconstrucción despreciable.
-- H2: un modelo de difusión sobre nodos alcanza calidad comparable al baseline denso con menos cómputo.
+- H2: un modelo de difusión discreta sobre nodos alcanza calidad comparable al baseline denso con menos cómputo.
 - H3: predecir la subdivisión de forma generativa (coarse-to-fine) es viable y estable.
 
 ---
@@ -54,18 +64,21 @@ python main.py
 
 ## 3. Diseño propuesto (hoja de ruta)
 
-**Fase 0 — Representación.** Pad a 32×32, barrido de umbral/profundidad, estadísticas (nº hojas, MSE, histograma de profundidades). Serializar el árbol a tensores: lista de nodos con `(nivel, x, y, valor, máscara_split)` en orden BFS/Morton (Z-order), con padding y máscara para batching.
+**Fase 0 — Representación binaria.** Pad a 32×32 (5 niveles: 32→16→8→4→2→1). Binarizar MNIST (umbral 0 sobre [-1,1]). Construir el árbol **exacto**: un nodo es hoja `vacío`/`lleno` si su bloque es uniforme; si no, `subdividir`. Estadísticas: nº de nodos frente a 1024 píxeles e histograma de profundidades. Serializar a tensores `(nivel, x, y, estado)` en orden BFS + Morton (Z-order) dentro de cada nivel, con padding y máscara para batching.
 
-**Fase 1 — Baseline denso.** DDPM con U-Net pequeño en MNIST 32×32 (referencia de FID y coste).
+**Fase 1 — Baselines.**
+- (a) Difusión discreta enmascarada (MDLM / MaskGIT) sobre los **1024 píxeles binarios** con un transformer. Es la comparación justa: mismo tipo de difusión, sin árbol.
+- (b) Opcional: DDPM con U-Net denso como referencia clásica.
 
-**Fase 2 — Difusión sobre estructura fija.** Árbol dado (del dato real), difusión gaussiana sólo sobre los valores de las hojas. Red: transformer sobre tokens de nodo con embedding de posición (x, y, nivel) — tipo DiT con tokens de tamaño variable. Valida H2 de forma aislada.
+**Fase 2 — Difusión discreta sobre el árbol (núcleo del proyecto).** Dos variantes:
+- *Variante A, nivel a nivel (cascada, tipo VAR/OctGPT, pero con difusión)*: para el nivel *l*, se parte de todos los nodos enmascarados y se desenmascaran en *T* pasos, condicionando en los niveles anteriores (ya fijados). Los nodos `subdividir` generan los hijos del nivel siguiente. Un único transformer compartido entre niveles, con embedding de nivel.
+- *Variante B, árbol completo enmascarado*: se considera el árbol completo de 32×32 (1365 nodos posibles) y se enmascaran estados con una máscara consistente (un hijo sólo existe si el padre es `subdividir`). Difusión conjunta de todos los niveles.
+- Red: transformer con embeddings de `(x, y, nivel, estado)`, atención entre todos los nodos activos (o restringida a padre/vecinos si escala mal).
+- Pérdida: entropía cruzada sobre los nodos enmascarados (objetivo MDLM).
 
-**Fase 3 — Estructura generativa (dinámica).** Generar el árbol nivel a nivel:
-- *Opción A (coarse-to-fine en cascada)*: en cada nivel, un modelo predice valores (difusión continua) y bits de subdivisión (clasificación / difusión discreta tipo D3PM) condicionado al nivel anterior.
-- *Opción B (estructura en el estado)*: difusión conjunta sobre valores + bits de *split*, con un árbol "completo" enmascarado.
-- *Opción C (latente)*: autoencoder árbol→latente fijo y difusión en latente (estilo LDM / XCube).
+**Fase 3 — Variantes de árbol.** Comparar árbol exacto, árbol con profundidad máxima (hojas con mayoría lleno/vacío) y un orden de subdivisión aleatorio como *augmentation* (es la duda de "árbol fijo o aleatorio").
 
-**Fase 4 — Evaluación.** FID/KID (con clasificador MNIST), precisión/recall, bpd, nº medio de tokens, FLOPs y tiempo por muestra vs baseline. Ablaciones: umbral, profundidad máx., orden de serialización.
+**Fase 4 — Evaluación.** FID/KID con un extractor entrenado en MNIST, precisión/recall, NLL (bits por imagen), nº medio de tokens, FLOPs y tiempo por muestra frente a los baselines. Ablaciones: nº de pasos *T*, orden de serialización, variante A frente a B, transformer frente a CNN dispersa.
 
 **Fase 5 — 3D.** Octrees sobre ShapeNet (SDF/ocupación), comparando con OctFusion, XCube, OctGPT.
 
@@ -113,8 +126,32 @@ python main.py
 - Hui et al. *Neural Wavelet-domain Diffusion for 3D Shape Generation*. SIGGRAPH Asia 2022. arXiv:2209.08725
 - Zheng et al. *LAS-Diffusion*. SIGGRAPH 2023. arXiv:2305.04461
 
-### 4.5 Posicionamiento
-Ningún trabajo revisado combina las tres cosas que QDD2D busca: **(i)** difusión **(ii)** sobre tokens de quadtree de tamaño variable **(iii)** con la **topología generada dinámicamente** en 2D. OctFusion/XCube/OctGPT lo hacen en 3D (con octrees y ocupación), Quadformer usa quadtrees sólo para clasificación, y Matryoshka/VAR/Relay son multiescala pero densos. El nicho es un estudio limpio y controlado en 2D que sirva de banco de pruebas para el 3D.
+### 4.5 Difusión discreta / enmascarada (clave con datos binarios)
+- Chang et al. *MaskGIT: Masked Generative Image Transformer*. CVPR 2022. arXiv:2202.04200
+- Sahoo et al. *Simple and Effective Masked Diffusion Language Models (MDLM)*. NeurIPS 2024. arXiv:2406.07524 · código: `kuleshov-group/mdlm`
+- Shi et al. *Simplified and Generalized Masked Diffusion for Discrete Data (MD4)*. NeurIPS 2024. arXiv:2406.04329
+- Lou et al. *Discrete Diffusion Modeling by Estimating the Ratios of the Data Distribution (SEDD)*. ICML 2024. arXiv:2310.16834
+- Wang et al. *Remasking Discrete Diffusion Models with Inference-Time Scaling (ReMDM)*. NeurIPS 2025. arXiv:2503.00307 — permite corregir tokens ya decididos al muestrear.
+- *Scaling study de difusión discreta* (enmascarada frente a uniforme e interpolante). 2026. arXiv:2602.15014
+
+### 4.6 Novedades 2025–2026 directamente relacionadas
+- **BudgetPix: Compute-Adaptive Tokenization for Pixel-Space Image Diffusion**. 2026. arXiv:2610.12307 — quadtree guiado por entropía y tokens de longitud variable para difusión en píxeles; iguala a PixelDiT a 1024² con ~25 % del cómputo. **Es la evidencia más directa de que tu intuición funciona** (en continuo).
+- **QuadTok: Quadtree Visual Tokenizer**. 2026. arXiv:2610.10497 — tokenizador por quadtree; generación controlable a partir de *layouts* de quadtree.
+- **Elastic Token Compression for Pixel-Space DiTs**. 2026. arXiv:2608.29281 — regiones adaptativas no diádicas (discute las limitaciones del quadtree).
+- **CAT: Content-Adaptive Image Tokenization**. 2025. arXiv:2501.03120
+- **HierOctFusion**. 2025. arXiv:2508.11106 — octree diffusion con jerarquía de partes.
+- **Octree Diffusion for Semantic Scene Generation and Completion**. 2025. arXiv:2509.16483
+- **DVD: Discrete Voxel Diffusion for 3D Generation and Editing**. ICML 2026. arXiv:2605.07971 — **difusión discreta sobre ocupación binaria de vóxeles**, el equivalente 3D de este proyecto, pero sin jerarquía.
+- OctFusion fue aceptado en SGP 2025 (v2 de arXiv:2408.14732).
+
+> Las referencias de 2026 son preprints; las cifras salen del resumen y conviene verificarlas leyendo los artículos.
+
+### 4.7 Posicionamiento
+- **BudgetPix / QuadTok** ya demuestran que los tokens por quadtree ahorran cómputo en difusión, pero con **valores continuos** y un **árbol calculado de antemano** a partir de la imagen.
+- **DVD** hace difusión **discreta de ocupación**, pero sobre una rejilla **plana**.
+- **OctGPT / XCube / OctFusion** son jerárquicos en 3D, pero autorregresivos o con difusión **continua** en latente.
+
+**Hueco de QDD2D:** **difusión discreta (enmascarada) sobre los estados `{vacío, lleno, subdividir}` de un quadtree, generando la topología de grueso a fino**. Une la jerarquía de OctGPT/XCube con la difusión discreta de ocupación de DVD, validada primero en 2D (MNIST) y extensible directamente a octrees.
 
 ---
 
@@ -126,8 +163,15 @@ Ningún trabajo revisado combina las tres cosas que QDD2D busca: **(i)** difusi�
 
 ---
 
-## 6. Preguntas abiertas (a decidir)
-1. ¿Los valores de las hojas son **continuos** (escala de grises) o **binarios** (como `to_binary_image`)? Cambia el tipo de difusión (gaussiana vs discreta).
-2. ¿La estructura del árbol se **genera** (Fase 3) o basta con difundir sobre árboles fijos?
-3. ¿Arquitectura preferida: transformer sobre nodos, GNN sobre el árbol, o CNN dispersa tipo O-CNN?
-4. ¿Objetivo final: publicación, TFG/TFM, o prototipo para 3D? Determina el alcance de la evaluación.
+## 6. Preguntas
+**Resueltas:** valores binarios · árbol generado · difusión discreta · transformer como primera arquitectura (ver §1).
+
+**Abiertas:**
+1. ¿Variante A (nivel a nivel) o B (árbol completo enmascarado)? Propuesta: empezar por A, que es más simple y escala mejor a 3D.
+2. ¿Árbol exacto o aleatorizado? Se resolverá experimentalmente en la Fase 3.
+3. ¿Objetivo final: publicación, TFG/TFM o prototipo para 3D? Determina el alcance de la evaluación.
+
+### Glosario rápido de arquitecturas
+- **Transformer sobre nodos**: cada nodo es un token con su posición y nivel; la atención relaciona todos con todos. Flexible; coste cuadrático.
+- **GNN**: los nodos intercambian mensajes por aristas (padre-hijo y vecinos). Respeta la estructura, pero la información viaja despacio.
+- **CNN dispersa (O-CNN)**: convoluciones sólo sobre las celdas existentes, nivel a nivel. Muy eficiente en 3D; necesita librerías específicas.
