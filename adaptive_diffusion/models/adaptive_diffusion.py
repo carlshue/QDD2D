@@ -54,10 +54,10 @@ def loss_fn(model, batch, label=None):
 
 @torch.no_grad()
 def sample(model, num, steps_per_level=8, label=None, temperature=1.0, device="cpu", generator=None):
-    """Genera `num` árboles. Devuelve (lista de tensores (L_i, 4), nº de evaluaciones de red)."""
+    """Genera `num` árboles. Devuelve (lista de tensores (L_i, 4), nº de evaluaciones de red, tokens procesados por muestra)."""
     depth = model.depth
     trees = [torch.tensor([[0, 0, 0, MASK]], dtype=torch.long) for _ in range(num)]
-    evals = 0
+    evals, tokens = 0, 0
     for l in range(depth + 1):
         for step in range(steps_per_level):
             active = [i for i, t in enumerate(trees) if (t[:, 3] == MASK).any()]
@@ -72,7 +72,8 @@ def sample(model, num, steps_per_level=8, label=None, temperature=1.0, device="c
             lab = None if label is None else label[active].to(device)
             logits = model(batch[..., 3], batch[..., 0], batch[..., 1], batch[..., 2], batch[..., 3] == PAD, lab)
             evals += 1
-            probs = F.softmax(logits / temperature, dim=-1).cpu()
+            tokens += sum(len(trees[i]) for i in active)
+            probs = F.softmax(logits.float() / temperature, dim=-1).cpu()
             # calendario coseno: fracción de nodos que siguen enmascarados tras este paso
             keep = math.cos(math.pi / 2 * (step + 1) / steps_per_level)
             for j, i in enumerate(active):
@@ -91,4 +92,4 @@ def sample(model, num, steps_per_level=8, label=None, temperature=1.0, device="c
                 yx = (2 * parents[:, None, 1:3] + off[None]).reshape(-1, 2)   # orden Morton
                 kids = torch.cat([torch.full((len(yx), 1), l + 1), yx, torch.full((len(yx), 1), MASK)], dim=1)
                 trees[i] = torch.cat([t, kids], dim=0)
-    return trees, evals
+    return trees, evals, tokens / num

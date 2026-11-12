@@ -41,7 +41,7 @@ def test_loss_decreases_and_samples_are_valid_trees():
         losses.append(loss.item())
     assert np.mean(losses[-10:]) < np.mean(losses[:10])
     model.eval()
-    out, _ = sample(model, 4, steps_per_level=3)
+    out, _, _ = sample(model, 4, steps_per_level=3)
     for t in out:
         assert not (t[:, 3] == MASK).any()
         assert not ((t[:, 0] == 3) & (t[:, 3] == SPLIT)).any()

@@ -3,10 +3,10 @@ Ejecuta un experimento completo en tu máquina y deja los resultados en
 results/<nombre>/ listos para subir a git.
 
 Uso (desde adaptive_diffusion/):
-    python -m experiments.run_local --name gpu01
-    python -m experiments.run_local --name gpu01 --steps 30000 --batch 256 --lr 1e-3
+    python -m experiments.run_local --name edit_cell --method edit --prior cell
+    python -m experiments.run_local --name grow02 --method grow
 
-Genera: train.log, sample.log, samples.png, model.pt y env.json.
+Genera: train.log, sample.log, samples.png, eval.log, metrics.json, model.pt y env.json.
 """
 import argparse
 import json
@@ -41,7 +41,9 @@ def main():
     p.add_argument("--device", default="auto")
     p.add_argument("--limit", type=int, default=None)
     p.add_argument("--num_samples", type=int, default=100)
-    p.add_argument("--steps_per_level", type=int, default=8)
+    p.add_argument("--method", choices=["grow", "edit"], default="edit")
+    p.add_argument("--prior", choices=["uniform", "level", "cell"], default="cell")
+    p.add_argument("--eval_samples", type=int, default=2000)
     args = p.parse_args()
 
     import torch
@@ -66,7 +68,8 @@ def main():
     py = [sys.executable, "-u", "-m"]   # -u: salida sin búfer, para ver el progreso en directo
     train = py + ["experiments.run_training", "--out", out, "--steps", str(args.steps), "--batch", str(args.batch),
                   "--lr", str(args.lr), "--dim", str(args.dim), "--layers", str(args.layers),
-                  "--heads", str(args.heads), "--device", args.device]
+                  "--heads", str(args.heads), "--device", args.device,
+                  "--method", args.method, "--prior", args.prior]
     if args.limit:
         train += ["--limit", str(args.limit)]
     print(f"GPU detectada: {env['gpu']}" if cuda else
@@ -74,9 +77,11 @@ def main():
     t0 = time.time()
     run(train, os.path.join(out, "train.log"))
     env["minutos_entrenamiento"] = round((time.time() - t0) / 60, 1)
-    run(py + ["experiments.run_sampling", "--ckpt", os.path.join(out, "model.pt"), "--num", str(args.num_samples),
-              "--steps_per_level", str(args.steps_per_level), "--device", args.device],
+    ckpt = os.path.join(out, "model.pt")
+    run(py + ["experiments.run_sampling", "--ckpt", ckpt, "--num", str(args.num_samples), "--device", args.device],
         os.path.join(out, "sample.log"))
+    run(py + ["experiments.evaluate", "--ckpt", ckpt, "--num", str(args.eval_samples), "--device", args.device],
+        os.path.join(out, "eval.log"))
     with open(os.path.join(out, "env.json"), "w", encoding="utf-8") as f:
         json.dump(env, f, indent=2, ensure_ascii=False)
 
