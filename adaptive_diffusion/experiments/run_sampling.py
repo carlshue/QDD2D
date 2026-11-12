@@ -21,10 +21,12 @@ def main():
     p.add_argument("--temperature", type=float, default=1.0)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", default=None)
+    p.add_argument("--device", default="auto", help="auto, cuda, mps o cpu")
     args = p.parse_args()
 
     torch.manual_seed(args.seed)
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    from experiments.run_training import pick_device
+    device = pick_device(args.device)
     ck = torch.load(args.ckpt, map_location=device)
     a = ck["args"]
     model = QuadtreeTransformer(depth=ck["depth"], dim=a["dim"], layers=a["layers"], heads=a["heads"]).to(device)

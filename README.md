@@ -58,6 +58,23 @@ python -m experiments.run_training --steps 20000 --out runs/qdd
 python -m experiments.run_sampling --ckpt runs/qdd/model.pt --num 100
 ```
 
+### Entrenar en GPU
+Los scripts usan la GPU automáticamente si PyTorch la detecta (`--device auto`; también `cuda`, `cuda:0`, `mps`, `cpu`). En CUDA se activa la precisión mixta (`--no_amp` la desactiva). Se guarda un punto de control cada `--save_every` pasos.
+
+```bash
+python -m experiments.run_training --device cuda --batch 256 --lr 1e-3 --steps 30000 --out runs/qdd_gpu
+```
+
+En Google Colab (entorno de ejecución con GPU):
+```bash
+!git clone -b claude/keen-heisenberg-yew59l https://github.com/carlshue/QDD2D.git
+%cd QDD2D/adaptive_diffusion
+!python -m experiments.run_training --device cuda --batch 256 --lr 1e-3 --steps 30000 --out runs/qdd_gpu
+!python -m experiments.run_sampling --ckpt runs/qdd_gpu/model.pt --num 100
+```
+
+> La ruta de GPU no se ha podido ejecutar todavía: el entorno donde se escribió el código no tiene GPU. En CPU el entrenamiento va a ~0,8 s por paso (lote de 64).
+
 ### Resultado de la Fase 0 (medido sobre los 60 000 dígitos de entrenamiento)
 | | Árbol | Rejilla 32×32 |
 |---|---|---|
