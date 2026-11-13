@@ -37,6 +37,7 @@ def main():
     p.add_argument("--corrupt", choices=["prior", "self", "both"], default="prior",
                    help="sólo grow_merge: los nodos decididos se estropean con el ruido (prior), con los errores "
                         "de la propia red (self) o con ambos (both)")
+    p.add_argument("--dataset", choices=["mnist", "quickdraw"], default="mnist")
     p.add_argument("--steps", type=int, default=20000)
     p.add_argument("--batch", type=int, default=64)
     p.add_argument("--lr", type=float, default=3e-4)
@@ -49,6 +50,8 @@ def main():
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--device", default="auto", help="auto, cuda, cuda:0, mps o cpu")
     p.add_argument("--no_amp", action="store_true", help="desactivar precisión mixta en GPU")
+    p.add_argument("--workers", type=int, default=0,
+                   help="sólo grow: procesos que preparan los lotes (0 = en el proceso principal, como antes)")
     p.add_argument("--save_every", type=int, default=2000)
     args = p.parse_args()
 
@@ -63,7 +66,7 @@ def main():
 
     prior = None
     if args.method in ("edit", "grow_merge"):
-        from data.binary_mnist import load_binary_mnist
+        from data.datasets import load_images
         from structures.pyramid import Pyramid
         if args.method == "edit":
             from models.edit_diffusion import loss_fn, training_batch
@@ -73,7 +76,7 @@ def main():
             def training_batch(pyr, s0, prior, label=None):
                 with torch.autocast("cuda", dtype=torch.bfloat16, enabled=use_amp):
                     return _tb(pyr, s0, prior, args.eps_max, model=model, label=label, corrupt=args.corrupt)
-        imgs, labels_np = load_binary_mnist(train=True)
+        imgs, labels_np = load_images(args.dataset, True)
         if args.limit:
             imgs, labels_np = imgs[:args.limit], labels_np[:args.limit]
         depth = int(imgs.shape[1]).bit_length() - 1
@@ -101,10 +104,16 @@ def main():
         from torch.utils.data import DataLoader
         from data.quadtree_dataset import QuadtreeMNIST
         from models.adaptive_diffusion import loss_fn as grow_loss, make_training_batch
-        data = QuadtreeMNIST(train=True, limit=args.limit)
+        data = QuadtreeMNIST(train=True, limit=args.limit, dataset=args.dataset)
         depth, n_data = data.depth, len(data)
-        loader = DataLoader(data, batch_size=args.batch, shuffle=True, drop_last=True,
-                            collate_fn=lambda b: ([t for t, _ in b], torch.stack([y for _, y in b])))
+        if args.workers > 0:     # construir el lote (tapar nodos, rellenar) en procesos aparte
+            def collate(b):
+                return make_training_batch([t for t, _ in b], depth), torch.stack([y for _, y in b])
+        else:
+            def collate(b):
+                return [t for t, _ in b], torch.stack([y for _, y in b])
+        loader = DataLoader(data, batch_size=args.batch, shuffle=True, drop_last=True, collate_fn=collate,
+                            num_workers=args.workers, persistent_workers=args.workers > 0)
 
         def loss_fn(model, batch, labels):
             return grow_loss(model, batch, labels), None
@@ -112,8 +121,8 @@ def main():
         def batches():
             while True:
                 for tokens, labels in loader:
-                    yield ({k: v.to(device) for k, v in make_training_batch(tokens, depth).items()},
-                           labels.to(device))
+                    b = tokens if args.workers > 0 else make_training_batch(tokens, depth)
+                    yield {k: v.to(device) for k, v in b.items()}, labels.to(device)
 
     model = QuadtreeTransformer(depth=depth, dim=args.dim, layers=args.layers, heads=args.heads,
                                 use_time=(args.method != "grow")).to(device)

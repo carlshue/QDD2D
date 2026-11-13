@@ -18,13 +18,14 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from data.binary_mnist import load_binary_mnist
+from data.datasets import ckpt_dataset, load_images
 from experiments.common import generate, load_model, pick_device
 
 
 class Classifier(nn.Module):
-    def __init__(self):
+    def __init__(self, size=32):
         super().__init__()
+        self.c4 = nn.Conv2d(64, 64, 3, padding=1) if size == 64 else None     # 64x64: una etapa más
         self.c1 = nn.Conv2d(1, 32, 3, padding=1)
         self.c2 = nn.Conv2d(32, 64, 3, padding=1)
         self.c3 = nn.Conv2d(64, 64, 3, padding=1)
@@ -35,20 +36,24 @@ class Classifier(nn.Module):
         x = F.max_pool2d(F.relu(self.c1(x)), 2)
         x = F.max_pool2d(F.relu(self.c2(x)), 2)
         x = F.max_pool2d(F.relu(self.c3(x)), 2)
+        if self.c4 is not None:
+            x = F.max_pool2d(F.relu(self.c4(x)), 2)
         return F.relu(self.fc(x.flatten(1)))
 
     def forward(self, x):
         return self.out(self.features(x))
 
 
-def get_classifier(device, path="results/classifier.pt", epochs=3):
-    clf = Classifier().to(device)
+def get_classifier(device, dataset="mnist", path=None, epochs=None):
+    path = path or ("results/classifier.pt" if dataset == "mnist" else f"results/classifier_{dataset}.pt")
+    epochs = epochs or (3 if dataset == "mnist" else 8)
+    imgs, labels = load_images(dataset, True)
+    clf = Classifier(imgs.shape[1]).to(device)
     if os.path.exists(path):
         clf.load_state_dict(torch.load(path, map_location=device))
         return clf.eval()
     print("entrenando el clasificador de evaluación (una sola vez)...", flush=True)
     torch.manual_seed(0)
-    imgs, labels = load_binary_mnist(train=True)
     x = torch.from_numpy(imgs).float()[:, None].to(device)
     y = torch.from_numpy(labels).to(device)
     opt = torch.optim.Adam(clf.parameters(), 1e-3)
@@ -103,9 +108,10 @@ def main():
     args = p.parse_args()
 
     device = pick_device(args.device)
-    clf = get_classifier(device)
-    test, test_y = load_binary_mnist(train=False)
-    train, _ = load_binary_mnist(train=True)
+    dataset = ckpt_dataset(args.ckpt[0])
+    clf = get_classifier(device, dataset)
+    test, test_y = load_images(dataset, False)
+    train, _ = load_images(dataset, True)
     f_test, pred_test = embed(clf, test, device)
     f_train, _ = embed(clf, train[:args.num], device)
     print(f"referencia con imágenes reales: acierto {100 * (pred_test == test_y).mean():.1f}% | "

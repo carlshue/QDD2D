@@ -6,13 +6,13 @@ import numpy as np
 import torch
 from torch.utils.data import Dataset
 
-from data.binary_mnist import load_binary_mnist
+from data.datasets import load_images
 from structures.binary_quadtree import build_levels, to_tokens
 
 
 class QuadtreeMNIST(Dataset):
-    def __init__(self, train=True, limit=None):
-        imgs, labels = load_binary_mnist(train=train)
+    def __init__(self, train=True, limit=None, dataset="mnist"):
+        imgs, labels = load_images(dataset, train)
         if limit:
             imgs, labels = imgs[:limit], labels[:limit]
         levels = build_levels(imgs)

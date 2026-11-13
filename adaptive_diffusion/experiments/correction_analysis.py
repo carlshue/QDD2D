@@ -20,7 +20,7 @@ import os
 import torch
 import torch.nn.functional as F
 
-from data.binary_mnist import load_binary_mnist
+from data.datasets import ckpt_dataset, load_images
 from experiments.common import load_model, pick_device
 from models.edit_diffusion import _gather
 from models.grow_merge import own_errors
@@ -87,7 +87,8 @@ def main():
     p.add_argument("--device", default="auto")
     args = p.parse_args()
     device = pick_device(args.device)
-    imgs, labels = load_binary_mnist(train=False)
+    dataset = ckpt_dataset(args.ckpt[0])
+    imgs, labels = load_images(dataset, False)
     imgs, labels = imgs[:args.num], labels[:args.num]
     src = load_model(args.source, device)[0] if args.source else None
     out = {}
@@ -105,7 +106,7 @@ def main():
         out[path] = res
         print(path, json.dumps(res, ensure_ascii=False), flush=True)
     os.makedirs("results/analysis", exist_ok=True)
-    tag = "comun" if args.source else "propio"
+    tag = ("comun" if args.source else "propio") + ("" if dataset == "mnist" else f"_{dataset}")
     with open(f"results/analysis/correction_{tag}.json", "w", encoding="utf-8") as f:
         json.dump(out, f, indent=1, ensure_ascii=False)
 

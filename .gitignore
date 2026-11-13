@@ -3,3 +3,4 @@ __pycache__/
 runs/
 .pytest_cache/
 octGPT/
+adaptive_diffusion/data/quickdraw/raw/

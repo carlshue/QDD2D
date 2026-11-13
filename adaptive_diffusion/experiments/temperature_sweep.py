@@ -12,7 +12,7 @@ import os
 import numpy as np
 import torch
 
-from data.binary_mnist import load_binary_mnist
+from data.datasets import ckpt_dataset, load_images
 from experiments.common import generate, load_model, pick_device
 from experiments.evaluate import embed, frechet, get_classifier
 
@@ -31,8 +31,9 @@ def main():
     args = p.parse_args()
 
     device = pick_device(args.device)
-    clf = get_classifier(device)
-    test, _ = load_binary_mnist(train=False)
+    dataset = ckpt_dataset(args.ckpt)
+    clf = get_classifier(device, dataset)
+    test, _ = load_images(dataset, False)
     f_test, _ = embed(clf, test, device)
     labels = torch.arange(args.num) % 10
     model, meta = load_model(args.ckpt, device)

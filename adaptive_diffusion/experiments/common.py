@@ -25,7 +25,8 @@ def load_model(path, device):
                                 use_time=(method in ("edit", "grow_merge"))).to(device)
     model.load_state_dict(ck["model"])
     model.eval()
-    return model, {"method": method, "depth": ck["depth"], "prior": ck.get("prior"), "args": a}
+    return model, {"method": method, "depth": ck["depth"], "prior": ck.get("prior"), "args": a,
+                   "dataset": a.get("dataset", "mnist")}
 
 
 @torch.no_grad()
