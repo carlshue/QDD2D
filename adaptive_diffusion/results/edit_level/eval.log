@@ -1,0 +1,2 @@
+referencia con imágenes reales: acierto 98.6% | Fréchet entrenamiento-prueba 5.91 (suelo de la métrica)
+{"modelo": "results\\edit_level\\model.pt", "metodo": "edit", "muestras": 2000, "acierto_clase_pct": 81.7, "frechet": 63.2, "segundos_por_muestra": 0.0066, "evals": 35.1, "tokens_por_muestra": 6861.9, "nodos_inicio": 216.3, "nodos_final": 230.1, "nodos_max": 373.0, "sin_resolver": 0.0}

@@ -1,0 +1,12 @@
+{
+  "modelo": "results/gpu01/model.pt",
+  "metodo": "grow",
+  "muestras": 2000,
+  "acierto_clase_pct": 94.25,
+  "frechet": 7.66,
+  "segundos_por_muestra": 0.0061,
+  "evals": 35.0,
+  "tokens_por_muestra": 3072.2,
+  "nodos_final": 213.7,
+  "nodos_max": 361.0
+}

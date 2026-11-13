@@ -1,0 +1,9 @@
+preparando los datos...
+ruido 'cell': 216 nodos de media por árbol aleatorio
+método edit | dispositivo NVIDIA GeForce RTX 3060 | precisión mixta sí | 0.85 M parámetros | 60000 árboles
+paso      1 | pérdida 1.0368 | 0s
+paso     10 | pérdida 0.5705 | 1s
+paso    100 | pérdida 0.5047 | nodos ruidosos corregidos 18.8% | 11s | faltan ~0 min
+paso    200 | pérdida 0.4268 | nodos ruidosos corregidos 31.1% | 22s | faltan ~0 min
+paso    300 | pérdida 0.4075 | nodos ruidosos corregidos 35.8% | 32s | faltan ~0 min
+guardado results\prueba\model.pt

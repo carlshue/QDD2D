@@ -1,0 +1,14 @@
+{
+  "modelo": "results\\prueba\\model.pt",
+  "metodo": "edit",
+  "muestras": 200,
+  "acierto_clase_pct": 55.5,
+  "frechet": 373.53,
+  "segundos_por_muestra": 0.0065,
+  "evals": 35.0,
+  "tokens_por_muestra": 7179.8,
+  "nodos_inicio": 212.4,
+  "nodos_final": 206.8,
+  "nodos_max": 337.0,
+  "sin_resolver": 0.0
+}

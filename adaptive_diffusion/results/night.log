@@ -1,0 +1,25 @@
+[2026-11-12 23:07:21] inicio de la tanda (real)
+[2026-11-12 23:07:21] >> C:\Python314\python.exe -u -m experiments.run_local --name edit_cell --method edit --prior cell --steps 30000
+[2026-11-12 23:07:58] inicio de la tanda (simulacro)
+[2026-11-12 23:07:58] >> C:\Python314\python.exe -u -m experiments.run_local --name edit_cell --method edit --prior cell --steps 30000
+[2026-11-12 23:07:58] edit_cell: correcto en 0 min
+[2026-11-12 23:07:58] >> C:\Python314\python.exe -u -m experiments.run_local --name edit_level --method edit --prior level --steps 30000
+[2026-11-12 23:07:58] edit_level: correcto en 0 min
+[2026-11-12 23:07:58] >> C:\Python314\python.exe -u -m experiments.run_local --name edit_uniform --method edit --prior uniform --steps 30000
+[2026-11-12 23:07:58] edit_uniform: correcto en 0 min
+[2026-11-12 23:07:58] subiendo resultados a git
+[2026-11-12 23:07:58] >> git add results
+[2026-11-12 23:07:58] >> git commit -m Resultados de la tanda nocturna (edit: cell, level, uniform)
+[2026-11-12 23:07:58] >> git push
+[2026-11-12 23:07:58] push correcto
+[2026-11-12 23:07:58] fin de la tanda: el ordenador se apaga en 2 minutos
+[2026-11-12 23:07:58] >> shutdown /s /t 120
+[2026-11-12 23:08:15] inicio de la tanda (real)
+[2026-11-12 23:08:15] >> C:\Python314\python.exe -u -m experiments.run_local --name edit_cell --method edit --prior cell --steps 30000
+[2026-11-13 00:03:22] edit_cell: correcto en 55 min
+[2026-11-13 00:03:22] >> C:\Python314\python.exe -u -m experiments.run_local --name edit_level --method edit --prior level --steps 30000
+[2026-11-13 01:06:46] edit_level: correcto en 63 min
+[2026-11-13 01:06:46] >> C:\Python314\python.exe -u -m experiments.run_local --name edit_uniform --method edit --prior uniform --steps 30000
+[2026-11-13 02:59:37] edit_uniform: correcto en 113 min
+[2026-11-13 02:59:37] subiendo resultados a git
+[2026-11-13 02:59:37] >> git add results

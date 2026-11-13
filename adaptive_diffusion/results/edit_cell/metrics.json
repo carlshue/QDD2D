@@ -1,0 +1,14 @@
+{
+  "modelo": "results\\edit_cell\\model.pt",
+  "metodo": "edit",
+  "muestras": 2000,
+  "acierto_clase_pct": 94.95,
+  "frechet": 13.98,
+  "segundos_por_muestra": 0.0058,
+  "evals": 34.8,
+  "tokens_por_muestra": 7263.5,
+  "nodos_inicio": 215.9,
+  "nodos_final": 221.2,
+  "nodos_max": 361.0,
+  "sin_resolver": 0.0
+}
