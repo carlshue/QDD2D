@@ -69,3 +69,11 @@ def test_training_and_sampling():
     imgs, stats = sample(model, pyr, prior, 8, steps=6)
     assert imgs.shape == (8, 8, 8) and imgs.dtype == torch.bool
     assert stats["sin_resolver"] == 0
+    # resolver los nodos recién nacidos en cada paso: mismo contrato, más evaluaciones
+    imgs2, stats2 = sample(model, pyr, prior, 8, steps=6, resolve_fresh=True)
+    assert imgs2.shape == (8, 8, 8) and stats2["sin_resolver"] == 0
+    assert stats2["evals"] >= stats["evals"]
+    # árbol de partida y ruido de los nodos nuevos elegidos a mano
+    init = pyr.sample_states(pyr.prior_uniform(0.6), 8)
+    imgs3, stats3 = sample(model, pyr, prior, 8, steps=6, fresh_prior=pyr.prior_uniform(0.6), init_state=init)
+    assert imgs3.shape == (8, 8, 8) and stats3["sin_resolver"] == 0

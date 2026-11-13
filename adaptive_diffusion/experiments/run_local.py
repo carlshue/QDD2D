@@ -5,6 +5,7 @@ results/<nombre>/ listos para subir a git.
 Uso (desde adaptive_diffusion/):
     python -m experiments.run_local --name edit_cell --method edit --prior cell
     python -m experiments.run_local --name grow02 --method grow
+    python -m experiments.run_local --name grow_merge --method grow_merge
 
 Genera: train.log, sample.log, samples.png, eval.log, metrics.json, model.pt y env.json.
 """
@@ -41,7 +42,8 @@ def main():
     p.add_argument("--device", default="auto")
     p.add_argument("--limit", type=int, default=None)
     p.add_argument("--num_samples", type=int, default=100)
-    p.add_argument("--method", choices=["grow", "edit"], default="edit")
+    p.add_argument("--method", choices=["grow", "grow_merge", "edit"], default="edit")
+    p.add_argument("--seed", type=int, default=0)
     p.add_argument("--prior", choices=["uniform", "level", "cell"], default="cell")
     p.add_argument("--eval_samples", type=int, default=2000)
     args = p.parse_args()
@@ -69,7 +71,7 @@ def main():
     train = py + ["experiments.run_training", "--out", out, "--steps", str(args.steps), "--batch", str(args.batch),
                   "--lr", str(args.lr), "--dim", str(args.dim), "--layers", str(args.layers),
                   "--heads", str(args.heads), "--device", args.device,
-                  "--method", args.method, "--prior", args.prior]
+                  "--method", args.method, "--prior", args.prior, "--seed", str(args.seed)]
     if args.limit:
         train += ["--limit", str(args.limit)]
     print(f"GPU detectada: {env['gpu']}" if cuda else

@@ -86,6 +86,12 @@ def main():
     p.add_argument("--num", type=int, default=2000, help="muestras por modelo")
     p.add_argument("--steps", type=int, default=None)
     p.add_argument("--temperature", type=float, default=1.0)
+    p.add_argument("--resolve", action="store_true",
+                   help="sólo 'edit': resolver con la red los nodos recién creados en cada paso (mejor calidad, ~3,5x evaluaciones)")
+    p.add_argument("--revise", type=float, default=1.0,
+                   help="sólo 'grow_merge': prob. de revisar un nodo dudoso ya decidido (0 = sin unión)")
+    p.add_argument("--revise_thr", type=float, default=0.5,
+                   help="sólo 'grow_merge': un nodo es dudoso si la red da a su estado menos de esta prob.")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--device", default="auto")
     args = p.parse_args()
@@ -100,20 +106,24 @@ def main():
           f"Fréchet entrenamiento-prueba {frechet(f_train, f_test):.2f} (suelo de la métrica)", flush=True)
 
     labels = torch.arange(args.num) % 10
+    # una variante de muestreo no pisa las métricas del muestreo por defecto
+    variant = ("_resolve" if args.resolve else "") + ("_sin_union" if args.revise <= 0 else "")
     for path in args.ckpt:
         torch.manual_seed(args.seed)
         model, meta = load_model(path, device)
         t0 = time.time()
-        imgs, stats = generate(model, meta, labels, device, args.steps, args.temperature)
+        imgs, stats = generate(model, meta, labels, device, args.steps, args.temperature, resolve_fresh=args.resolve,
+                           revise=args.revise, revise_thr=args.revise_thr)
         secs = time.time() - t0
         feats, preds = embed(clf, imgs, device)
-        res = {"modelo": path, "metodo": meta["method"], "muestras": args.num,
+        res = {"modelo": path, "metodo": meta["method"], "muestras": args.num, "resolve": args.resolve,
+               "revise": args.revise, "revise_thr": args.revise_thr,
                "acierto_clase_pct": round(100 * float((preds == labels.numpy()).mean()), 2),
                "frechet": round(frechet(feats, f_test), 2),
                "segundos_por_muestra": round(secs / args.num, 4),
                **{k: round(float(v), 1) for k, v in stats.items()}}
         print(json.dumps(res, ensure_ascii=False), flush=True)
-        with open(os.path.join(os.path.dirname(path), "metrics.json"), "w", encoding="utf-8") as f:
+        with open(os.path.join(os.path.dirname(path), f"metrics{variant}.json"), "w", encoding="utf-8") as f:
             json.dump(res, f, indent=2, ensure_ascii=False)
 
 

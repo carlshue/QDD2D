@@ -22,15 +22,18 @@ def load_model(path, device):
     a = ck["args"]
     method = a.get("method", "grow")
     model = QuadtreeTransformer(depth=ck["depth"], dim=a["dim"], layers=a["layers"], heads=a["heads"],
-                                use_time=(method == "edit")).to(device)
+                                use_time=(method in ("edit", "grow_merge"))).to(device)
     model.load_state_dict(ck["model"])
     model.eval()
     return model, {"method": method, "depth": ck["depth"], "prior": ck.get("prior"), "args": a}
 
 
 @torch.no_grad()
-def generate(model, meta, labels, device, steps=None, temperature=1.0, batch=250):
-    """Genera una imagen por etiqueta. Devuelve (imgs uint8 (N,S,S), estadísticas medias)."""
+def generate(model, meta, labels, device, steps=None, temperature=1.0, batch=250, resolve_fresh=False,
+             revise=1.0, revise_thr=0.5, trace=None):
+    """Genera una imagen por etiqueta. Devuelve (imgs uint8 (N,S,S), estadísticas medias).
+    resolve_fresh sólo afecta a 'edit'; revise y revise_thr, a 'grow_merge'.
+    trace: models.heat.HeatTrace opcional (sólo 'edit' y 'grow_merge')."""
     use_amp = str(device).startswith("cuda")
     imgs, agg = [], {}
     for lab in labels.split(batch):
@@ -40,7 +43,15 @@ def generate(model, meta, labels, device, steps=None, temperature=1.0, batch=250
                 from models.edit_diffusion import sample
                 from structures.pyramid import Pyramid
                 pyr = Pyramid(meta["depth"], device)
-                out, st = sample(model, pyr, meta["prior"].to(device), len(lab), steps or 32, lab, temperature)
+                out, st = sample(model, pyr, meta["prior"].to(device), len(lab), steps or 32, lab, temperature,
+                                 resolve_fresh=resolve_fresh, trace=trace)
+                out = out.cpu().numpy().astype(np.uint8)
+            elif meta["method"] == "grow_merge":
+                from models.grow_merge import sample
+                from structures.pyramid import Pyramid
+                pyr = Pyramid(meta["depth"], device)
+                out, st = sample(model, pyr, len(lab), steps or 8, lab, temperature, revise=revise,
+                                 revise_thr=revise_thr, trace=trace)
                 out = out.cpu().numpy().astype(np.uint8)
             else:
                 from models.adaptive_diffusion import sample

@@ -3,6 +3,8 @@ Entrena un modelo sobre quadtrees de MNIST binario.
 
   --method grow   el árbol crece de la raíz a los píxeles, tapando y destapando
                   nodos nivel a nivel (el prototipo original).
+  --method grow_merge  crece como 'grow', pero los nodos ya decididos se pueden
+                  revisar: subdividir más tarde o juntar. Sin árbol aleatorio.
   --method edit   se parte de un árbol aleatorio y se edita: subdividir, juntar
                   o cambiar el relleno de cualquier nodo en cualquier paso.
                   --prior elige el tipo de árbol aleatorio (uniform, level, cell).
@@ -26,10 +28,12 @@ def save(model, args, depth, prior=None):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--method", choices=["grow", "edit"], default="grow")
+    p.add_argument("--method", choices=["grow", "grow_merge", "edit"], default="grow")
     p.add_argument("--prior", choices=["uniform", "level", "cell"], default="cell",
                    help="árbol aleatorio de partida (sólo --method edit)")
     p.add_argument("--prior_p", type=float, default=0.667, help="prob. de subdividir del ruido 'uniform'")
+    p.add_argument("--eps_max", type=float, default=0.15,
+                   help="sólo grow_merge: fracción máxima de nodos ya decididos que se estropean al entrenar")
     p.add_argument("--steps", type=int, default=20000)
     p.add_argument("--batch", type=int, default=64)
     p.add_argument("--lr", type=float, default=3e-4)
@@ -55,10 +59,16 @@ def main():
     print("preparando los datos...", flush=True)
 
     prior = None
-    if args.method == "edit":
+    if args.method in ("edit", "grow_merge"):
         from data.binary_mnist import load_binary_mnist
-        from models.edit_diffusion import loss_fn, training_batch
         from structures.pyramid import Pyramid
+        if args.method == "edit":
+            from models.edit_diffusion import loss_fn, training_batch
+        else:
+            from models.grow_merge import loss_fn, training_batch as _tb
+
+            def training_batch(pyr, s0, prior):
+                return _tb(pyr, s0, prior, args.eps_max)
         imgs, labels_np = load_binary_mnist(train=True)
         if args.limit:
             imgs, labels_np = imgs[:args.limit], labels_np[:args.limit]
@@ -66,9 +76,13 @@ def main():
         pyr = Pyramid(depth, device)
         s0 = pyr.from_images(torch.from_numpy(imgs).to(device))
         all_labels = torch.from_numpy(labels_np).to(device)
-        prior = pyr.prior_uniform(args.prior_p) if args.prior == "uniform" else pyr.prior_from_data(s0, args.prior)
-        noise_nodes = pyr.exists(pyr.sample_states(prior, 2000)).sum(1).float().mean().item()
-        print(f"ruido '{args.prior}': {noise_nodes:.0f} nodos de media por árbol aleatorio", flush=True)
+        if args.method == "grow_merge":   # el ruido sólo decide con qué se estropean los nodos ya decididos
+            prior = pyr.prior_from_data(s0, "cell")
+            print(f"crecimiento con unión: hasta un {100 * args.eps_max:.0f}% de nodos decididos estropeados", flush=True)
+        else:
+            prior = pyr.prior_uniform(args.prior_p) if args.prior == "uniform" else pyr.prior_from_data(s0, args.prior)
+            noise_nodes = pyr.exists(pyr.sample_states(prior, 2000)).sum(1).float().mean().item()
+            print(f"ruido '{args.prior}': {noise_nodes:.0f} nodos de media por árbol aleatorio", flush=True)
         n_data = len(s0)
 
         def batches():
@@ -94,7 +108,7 @@ def main():
                            labels.to(device))
 
     model = QuadtreeTransformer(depth=depth, dim=args.dim, layers=args.layers, heads=args.heads,
-                                use_time=(args.method == "edit")).to(device)
+                                use_time=(args.method != "grow")).to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
     name = torch.cuda.get_device_name(device) if device.startswith("cuda") else device

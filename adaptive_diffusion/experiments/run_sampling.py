@@ -30,8 +30,14 @@ def main():
     p.add_argument("--ckpt", required=True)
     p.add_argument("--num", type=int, default=100)
     p.add_argument("--steps", type=int, default=None,
-                   help="pasos de muestreo: por nivel en 'grow' (def. 8), totales en 'edit' (def. 32)")
+                   help="pasos de muestreo: por nivel en 'grow' y 'grow_merge' (def. 8), totales en 'edit' (def. 32)")
     p.add_argument("--temperature", type=float, default=1.0)
+    p.add_argument("--resolve", action="store_true",
+                   help="sólo 'edit': resolver con la red los nodos recién creados en cada paso (mejor calidad, ~3,5x evaluaciones)")
+    p.add_argument("--revise", type=float, default=1.0,
+                   help="sólo 'grow_merge': prob. de revisar un nodo dudoso ya decidido (0 = sin unión)")
+    p.add_argument("--revise_thr", type=float, default=0.5,
+                   help="sólo 'grow_merge': un nodo es dudoso si la red da a su estado menos de esta prob.")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", default=None)
     p.add_argument("--device", default="auto", help="auto, cuda, mps o cpu")
@@ -40,7 +46,9 @@ def main():
     torch.manual_seed(args.seed)
     device = pick_device(args.device)
     model, meta = load_model(args.ckpt, device)
-    imgs, stats = generate(model, meta, torch.arange(args.num) % 10, device, args.steps, args.temperature)
+    imgs, stats = generate(model, meta, torch.arange(args.num) % 10, device, args.steps, args.temperature,
+                           resolve_fresh=args.resolve,
+                           revise=args.revise, revise_thr=args.revise_thr)
     print(f"método {meta['method']} | {args.num} muestras | " +
           " | ".join(f"{k} {v:.1f}" for k, v in stats.items()), flush=True)
     out = args.out or os.path.join(os.path.dirname(args.ckpt), "samples.png")
