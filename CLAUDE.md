@@ -71,14 +71,23 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 - La varianza entre semillas de entrenamiento (~2 puntos de Fréchet) supera el efecto de la unión.
 - Tabla completa en la sección 3.1 del README.
 
+### `grow_merge` con errores propios (`--corrupt self|both`, 2 semillas cada uno, 2026-11-13)
+
+- Medida directa (`experiments.correction_analysis`): detección de errores propios 35 % → 60 %,
+  arreglo 34 % → 58–60 %, en ambas semillas.
+- `both` (errores propios + ruido) es la mejor variante con unión: Fréchet 6,6–7,4 y 5,6–6,8.
+  `self` sola empeora las muestras (8–11) aunque poda hasta ~208 nodos.
+- Con temperatura 1 la revisión mejora mucho a `both`; con temperatura ajustada, un punto o menos.
+- Sigue sin superar a `grow` a 0,9 (4,7–5,7, una sola semilla de entrenamiento). Tablas en README 3.2.
+
 ## Pendiente
 
-1. Entrenar `grow_merge` con sus propios errores en vez del prior `cell` (ingrediente 2 del documento).
-2. Cabeza de calidad por nodo (ingrediente 3).
-3. Pasar a un problema mayor (64×64 o vóxeles 3D), donde un error de subdivisión cueste más.
-4. Más semillas de entrenamiento por caso, incluido `grow`, antes de afirmar diferencias pequeñas.
-5. `sampling_analysis` y `heat_analysis` completos siguen sin ejecutarse dentro del repo.
-6. Al comparar métodos, barrer siempre la temperatura (`experiments.temperature_sweep`).
+1. Más semillas de `grow` (solo hay una) para saber si `both` lo iguala o no.
+2. Pasar a un problema mayor (64×64 de trazo fino o vóxeles 3D), con `grow`, `grow_merge both` y
+   `edit cell` + resolve; decidir el conjunto de datos con el usuario.
+3. Cabeza de calidad por nodo (ingrediente 3) si la detección del 60 % se queda corta.
+4. `sampling_analysis` y `heat_analysis` completos siguen sin ejecutarse dentro del repo.
+5. Al comparar métodos, barrer siempre la temperatura (`experiments.temperature_sweep`).
 
 ## Cómo se ejecuta
 
@@ -105,7 +114,9 @@ python -m experiments.sampling_analysis
 
 ## Normas de trabajo
 
-- **No lanzar entrenamientos ni análisis largos sin que el usuario lo diga.** Pruebas de segundos sí.
+- Entrenamientos y análisis: el 2026-11-13 el usuario dio vía libre para lanzarlos cuando hagan falta
+  ("tienes vía libre para entrenar cuando y como lo necesites"). Antes pedía esperar a su señal; si las
+  gráficas pueden estar ocupadas por otra cosa, comprobar con `nvidia-smi` antes de lanzar.
 - No hacer push sin permiso (el del 2026-11-13 fue autorizado para esa tanda). `origin` es HTTPS sin credenciales; el push funciona por SSH
   (`git@github.com:carlshue/QDD2D.git`).
 - No usar `pkill -f` con un patrón que coincida con la propia orden; usar `pgrep -af "[p]atrón"`.

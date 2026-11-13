@@ -173,6 +173,45 @@ Lectura:
   confianza y no hace nada al azar; no supera al control de temperatura.
 - **El prior del árbol aleatorio decide el resultado de `edit`:** `cell` ≫ `level` ≫ `uniform`.
 
+## 3.2 Unión entrenada con los errores propios (noviembre de 2026)
+
+`grow_merge` se entrenaba estropeando los nodos ya decididos con ruido del prior `cell`. Ahora puede
+estropearlos con los errores de la propia red (`--corrupt self`) o con ambas cosas (`--corrupt both`):
+en cada lote se tapa parte de un nivel anterior, se sortea la predicción de la red y se deja ese
+resultado como si estuviera decidido. Dos semillas de entrenamiento por variante, 30 000 pasos.
+
+**Medida directa** (`experiments.correction_analysis`, 5000 imágenes de prueba, sin generar nada): de los
+errores que comete la red al decidir un nivel, cuántos señala después (probabilidad del estado actual
+menor que 0,5) y cuántos arreglaría.
+
+| Entrenado con | Detecta | Arreglaría | Subdivisión de más | Subdivisión de menos | Falsa alarma |
+|---|---|---|---|---|---|
+| ruido del prior (`prior`) | 35–37 % | 34–36 % | 51–55 % | 18 % | 0,1 % |
+| errores propios (`self`) | 59–63 % | 57–60 % | 74–76 % | 43–48 % | 0,3 % |
+| ambos (`both`) | 60–61 % | 58–59 % | 74–75 % | 44–46 % | 0,3 % |
+
+**Calidad de las muestras** (2000 muestras, 3 semillas de muestreo; cada celda da el rango de la semilla
+de entrenamiento 0 y el de la 1, con la mejor temperatura de cada una):
+
+| Entrenado con | Fréchet con unión | Fréchet sin unión | Revisiones por imagen | Nodos finales |
+|---|---|---|---|---|
+| `prior` | 8,6–10,5 · 6,4–8,0 | 7,0–8,2 · 7,2–8,4 | 1,9–2,8 | 214–218 |
+| `self` | 7,9–9,4 · 10,5–11,1 | 10,5–12,4 · 11,5–13,5 | 2,0–4,6 | 207–210 |
+| `both` | 6,6–7,4 · 5,6–6,8 | 7,4–8,7 · 6,1–6,8 | 3,1–4,9 | 212–216 |
+| `grow` sin unión (referencia, 1 semilla) | — | 4,7–5,7 | — | 211 |
+
+Lectura:
+
+- **La red aprende a revisar:** detecta y arreglaría casi el doble de sus errores (del 35 % al 60 %), en
+  las dos semillas y también sobre un conjunto de errores común.
+- **`both` es la mejor variante con unión** y mejora a `prior` en las dos semillas. `self` sola empeora
+  las muestras aunque revisa bien; con temperatura 1 y sin revisión cae a Fréchet 23–29.
+- **Con temperatura 1 la revisión ahora importa mucho** (`both`: de 11–14 sin unión a 6–9 con ella). Con
+  la temperatura ajustada la diferencia se reduce a un punto o menos.
+- **Sigue sin superar a `grow` con temperatura ajustada** (4,7–5,7), aunque `both` semilla 1 se queda cerca
+  (5,6–6,8). `grow` solo tiene una semilla de entrenamiento, así que la comparación no es concluyente.
+- **Poda:** `self` deja el árbol en 207–210 nodos (el mínimo para estas imágenes es ~209); las demás, 212–218.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión

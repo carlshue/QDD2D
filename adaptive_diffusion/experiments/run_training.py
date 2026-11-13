@@ -34,6 +34,9 @@ def main():
     p.add_argument("--prior_p", type=float, default=0.667, help="prob. de subdividir del ruido 'uniform'")
     p.add_argument("--eps_max", type=float, default=0.15,
                    help="sólo grow_merge: fracción máxima de nodos ya decididos que se estropean al entrenar")
+    p.add_argument("--corrupt", choices=["prior", "self", "both"], default="prior",
+                   help="sólo grow_merge: los nodos decididos se estropean con el ruido (prior), con los errores "
+                        "de la propia red (self) o con ambos (both)")
     p.add_argument("--steps", type=int, default=20000)
     p.add_argument("--batch", type=int, default=64)
     p.add_argument("--lr", type=float, default=3e-4)
@@ -67,8 +70,9 @@ def main():
         else:
             from models.grow_merge import loss_fn, training_batch as _tb
 
-            def training_batch(pyr, s0, prior):
-                return _tb(pyr, s0, prior, args.eps_max)
+            def training_batch(pyr, s0, prior, label=None):
+                with torch.autocast("cuda", dtype=torch.bfloat16, enabled=use_amp):
+                    return _tb(pyr, s0, prior, args.eps_max, model=model, label=label, corrupt=args.corrupt)
         imgs, labels_np = load_binary_mnist(train=True)
         if args.limit:
             imgs, labels_np = imgs[:args.limit], labels_np[:args.limit]
@@ -78,7 +82,8 @@ def main():
         all_labels = torch.from_numpy(labels_np).to(device)
         if args.method == "grow_merge":   # el ruido sólo decide con qué se estropean los nodos ya decididos
             prior = pyr.prior_from_data(s0, "cell")
-            print(f"crecimiento con unión: hasta un {100 * args.eps_max:.0f}% de nodos decididos estropeados", flush=True)
+            print(f"crecimiento con unión: nodos decididos estropeados con '{args.corrupt}' "
+                  f"(ruido hasta {100 * args.eps_max:.0f}%)", flush=True)
         else:
             prior = pyr.prior_uniform(args.prior_p) if args.prior == "uniform" else pyr.prior_from_data(s0, args.prior)
             noise_nodes = pyr.exists(pyr.sample_states(prior, 2000)).sum(1).float().mean().item()
@@ -88,7 +93,10 @@ def main():
         def batches():
             while True:
                 idx = torch.randint(0, n_data, (args.batch,), device=device)
-                yield training_batch(pyr, s0[idx], prior), all_labels[idx]
+                if args.method == "grow_merge":
+                    yield training_batch(pyr, s0[idx], prior, all_labels[idx]), all_labels[idx]
+                else:
+                    yield training_batch(pyr, s0[idx], prior), all_labels[idx]
     else:
         from torch.utils.data import DataLoader
         from data.quadtree_dataset import QuadtreeMNIST

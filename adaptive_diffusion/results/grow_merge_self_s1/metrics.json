@@ -1,0 +1,22 @@
+{
+  "modelo": "results/grow_merge_self_s1/model.pt",
+  "metodo": "grow_merge",
+  "muestras": 2000,
+  "resolve": false,
+  "revise": 1.0,
+  "revise_thr": 0.5,
+  "remask": 0.0,
+  "remask_rounds": 0,
+  "remask_mode": "conf",
+  "acierto_clase_pct": 95.1,
+  "frechet": 14.49,
+  "segundos_por_muestra": 0.0011,
+  "evals": 38.5,
+  "tokens_por_muestra": 3622.7,
+  "nodos_final": 205.5,
+  "nodos_max": 341.0,
+  "revisiones": 4.8,
+  "uniones": 3.1,
+  "subdivisiones_tardias": 1.5,
+  "sin_resolver": 0.0
+}

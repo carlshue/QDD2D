@@ -45,6 +45,7 @@ def main():
     p.add_argument("--method", choices=["grow", "grow_merge", "edit"], default="edit")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--prior", choices=["uniform", "level", "cell"], default="cell")
+    p.add_argument("--corrupt", choices=["prior", "self", "both"], default="prior")
     p.add_argument("--eval_samples", type=int, default=2000)
     args = p.parse_args()
 
@@ -71,7 +72,8 @@ def main():
     train = py + ["experiments.run_training", "--out", out, "--steps", str(args.steps), "--batch", str(args.batch),
                   "--lr", str(args.lr), "--dim", str(args.dim), "--layers", str(args.layers),
                   "--heads", str(args.heads), "--device", args.device,
-                  "--method", args.method, "--prior", args.prior, "--seed", str(args.seed)]
+                  "--method", args.method, "--prior", args.prior, "--seed", str(args.seed),
+                  "--corrupt", args.corrupt]
     if args.limit:
         train += ["--limit", str(args.limit)]
     print(f"GPU detectada: {env['gpu']}" if cuda else

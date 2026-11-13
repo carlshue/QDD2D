@@ -1,0 +1,2 @@
+referencia con imágenes reales: acierto 98.6% | Fréchet entrenamiento-prueba 5.91 (suelo de la métrica)
+{"modelo": "results/grow_merge_self/model.pt", "metodo": "grow_merge", "muestras": 2000, "resolve": false, "revise": 1.0, "revise_thr": 0.5, "remask": 0.0, "remask_rounds": 0, "remask_mode": "conf", "acierto_clase_pct": 95.15, "frechet": 14.27, "segundos_por_muestra": 0.001, "evals": 38.8, "tokens_por_muestra": 3691.5, "nodos_final": 207.0, "nodos_max": 337.0, "revisiones": 8.9, "uniones": 4.9, "subdivisiones_tardias": 3.4, "sin_resolver": 0.0}

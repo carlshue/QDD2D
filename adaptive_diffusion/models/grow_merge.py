@@ -24,14 +24,48 @@ from models.quadtree_transformer import MASK
 from structures.binary_quadtree import SPLIT
 
 
-def training_batch(pyr, s0, prior, eps_max=0.15, generator=None):
+@torch.no_grad()
+def own_errors(model, pyr, s0, lvl, label=None, generator=None):
+    """Errores propios de la red: para cada árbol se elige un nivel j < lvl, se tapa una
+    fracción al azar de sus nodos (con los niveles anteriores limpios, como al muestrear)
+    y se sortea la predicción de la red. Devuelve s0 con esos nodos sustituidos por lo
+    que la red ha dicho: donde acierta no cambia nada, donde falla queda SU error."""
+    n, dev = s0.shape[0], s0.device
+    j = (torch.rand(n, 1, device=dev, generator=generator) * lvl).floor().long()     # j en [0, lvl)
+    has = lvl > 0
+    t = torch.rand(n, device=dev, generator=generator)
+    lev = pyr.level[None]
+    hide = (lev == j) & has & (torch.rand(s0.shape, device=dev, generator=generator) < t[:, None])
+    state = torch.where(hide, torch.full_like(s0, MASK), s0)
+    ex = pyr.exists(state) & (lev <= j)
+    order, pad = pyr.to_sequence(ex)
+    b = _gather(pyr, state, order, pad)
+    was = model.training
+    model.eval()
+    logits = model(b["state"], b["level"], b["y"], b["x"], pad, label, t).float()
+    model.train(was)
+    pick = torch.multinomial(F.softmax(logits, -1).reshape(-1, logits.shape[-1]), 1, generator=generator).reshape(n, -1)
+    x0 = torch.zeros_like(s0)
+    x0.scatter_(1, order, pick.to(s0.dtype).masked_fill(pad, 0))
+    return torch.where(hide & ex, x0, s0)
+
+
+def training_batch(pyr, s0, prior, eps_max=0.15, generator=None, model=None, label=None, corrupt="prior"):
+    """corrupt: de dónde salen los nodos decididos estropeados.
+        'prior'  sustituciones al azar del ruido `prior` (prob. eps por nodo)
+        'self'   errores de la propia red (necesita `model`), ver own_errors
+        'both'   las dos cosas"""
     n, dev = s0.shape[0], s0.device
     lvl = torch.randint(0, pyr.depth + 1, (n, 1), device=dev, generator=generator)
     t = torch.rand(n, device=dev, generator=generator)
     eps = eps_max * torch.rand(n, 1, device=dev, generator=generator)
     below, at = pyr.level[None] < lvl, pyr.level[None] == lvl
-    u = torch.rand(s0.shape, device=dev, generator=generator)
-    state = torch.where(below & (u < eps), pyr.sample_states(prior, n, generator), s0)
+    state = s0
+    if corrupt in ("self", "both"):
+        state = own_errors(model, pyr, s0, lvl, label, generator)
+    if corrupt in ("prior", "both"):
+        u = torch.rand(s0.shape, device=dev, generator=generator)
+        state = torch.where(below & (u < eps), pyr.sample_states(prior, n, generator), state)
     u = torch.rand(s0.shape, device=dev, generator=generator)
     hide = (at & (u < t[:, None])) | (below & (u < eps / 2))
     state = torch.where(hide, torch.full_like(state, MASK), state)

@@ -78,3 +78,27 @@ def test_training_and_sampling_with_and_without_merge():
             w = s[f"ventanas_n{wl}"]
             assert s["nodos_calientes_pct"] <= w["tokens_a_recalcular_pct"] <= 100
             assert w["cambios_fuera_de_ventanas_calientes_pct"] <= s["cambios_en_nodos_frios_pct"] + 1e-6
+
+
+def test_own_errors_batch_is_valid_and_differs_only_where_the_model_errs():
+    from models.grow_merge import own_errors
+    torch.manual_seed(0)
+    pyr = Pyramid(3)
+    s0 = pyr.from_images(torch.from_numpy(_data()))
+    prior = pyr.prior_from_data(s0, "cell")
+    model = QuadtreeTransformer(depth=3, dim=32, layers=2, heads=2, use_time=True)
+    lvl = torch.full((len(s0), 1), 3)
+    st = own_errors(model, pyr, s0, lvl)
+    assert model.training                      # no deja la red en modo evaluación
+    diff = st != s0
+    assert diff.any()                          # una red sin entrenar se equivoca
+    assert (diff.sum(1) > 0).float().mean() > 0.5
+    assert (pyr.level[None].expand_as(diff)[diff] < 3).all()     # sólo en niveles ya decididos
+    assert (st[diff] <= SPLIT).all()
+    assert (own_errors(model, pyr, s0, torch.zeros(len(s0), 1, dtype=torch.long)) == s0).all()
+    for mode in ("self", "both"):
+        b = training_batch(pyr, s0, prior, eps_max=0.3, model=model, corrupt=mode)
+        real = ~b["pad_mask"]
+        assert ((b["target"] == -100) == b["pad_mask"]).all() and (b["state"][real] <= MASK).all()
+        loss, _ = loss_fn(model, b)
+        assert torch.isfinite(loss)
