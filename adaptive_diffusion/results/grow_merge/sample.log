@@ -1,0 +1,2 @@
+método grow_merge | 100 muestras | evals 37.0 | tokens_por_muestra 3502.5 | nodos_final 221.0 | nodos_max 345.0 | revisiones 2.2 | uniones 1.4 | subdivisiones_tardias 0.7 | sin_resolver 0.0
+guardado results/grow_merge/samples.png

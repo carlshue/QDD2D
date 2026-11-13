@@ -49,3 +49,38 @@ def test_loss_decreases_and_samples_are_valid_trees():
         img = levels_to_image([lv[None] for lv in levels])
         # el árbol generado decodifica a una imagen cuyo árbol tiene como mucho esos nodos
         assert len(to_tokens([lv[0] for lv in build_levels(img)])) <= len(t)
+
+
+def _valid(t, depth=3):
+    assert not (t[:, 3] == MASK).any()
+    assert not ((t[:, 0] == depth) & (t[:, 3] == SPLIT)).any()
+    for l in range(depth):       # cada SPLIT tiene exactamente sus 4 hijos y no hay huérfanos
+        assert ((t[:, 0] == l + 1).sum() == 4 * ((t[:, 0] == l) & (t[:, 3] == SPLIT)).sum())
+
+
+def test_remask_keeps_trees_valid_and_counts():
+    torch.manual_seed(0)
+    model = QuadtreeTransformer(depth=3, dim=32, layers=2, heads=2).eval()
+    base = {}
+    out, ev0, _ = sample(model, 6, steps_per_level=4, stats=base)
+    assert base["reenmascarados"] == 0 and base["cambios"] == 0
+    for mode in ("conf", "uniform"):
+        for rounds in (0, 2):
+            st = {}
+            g = torch.Generator().manual_seed(1)
+            out, ev, _ = sample(model, 6, steps_per_level=4, generator=g, remask=0.5, remask_rounds=rounds,
+                                remask_mode=mode, stats=st)
+            for t in out:
+                _valid(t)
+            assert st["reenmascarados"] > 0
+            assert st["cambios"] <= st["reenmascarados"]
+            assert st["uniones"] + st["subdivisiones_tardias"] <= st["cambios"]
+            if rounds:
+                assert ev > ev0
+
+
+def test_remask_off_is_reproducible():
+    model = QuadtreeTransformer(depth=3, dim=32, layers=2, heads=2).eval()
+    a, _, _ = sample(model, 4, steps_per_level=3, generator=torch.Generator().manual_seed(5))
+    b, _, _ = sample(model, 4, steps_per_level=3, generator=torch.Generator().manual_seed(5), remask=0.0, remask_rounds=3)
+    assert all((x == y).all() for x, y in zip(a, b))

@@ -38,6 +38,12 @@ def main():
                    help="sólo 'grow_merge': prob. de revisar un nodo dudoso ya decidido (0 = sin unión)")
     p.add_argument("--revise_thr", type=float, default=0.5,
                    help="sólo 'grow_merge': un nodo es dudoso si la red da a su estado menos de esta prob.")
+    p.add_argument("--remask", type=float, default=0.0,
+                   help="sólo 'grow': fracción de nodos decididos del nivel en curso que se vuelve a enmascarar (0 = desactivado)")
+    p.add_argument("--remask_rounds", type=int, default=0,
+                   help="sólo 'grow': rondas extra de corrección al acabar cada nivel; con 0 se reenmascara dentro de los pasos")
+    p.add_argument("--remask_mode", choices=["conf", "uniform"], default="conf",
+                   help="sólo 'grow': 'conf' prioriza los nodos decididos con menos confianza")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", default=None)
     p.add_argument("--device", default="auto", help="auto, cuda, mps o cpu")
@@ -48,7 +54,8 @@ def main():
     model, meta = load_model(args.ckpt, device)
     imgs, stats = generate(model, meta, torch.arange(args.num) % 10, device, args.steps, args.temperature,
                            resolve_fresh=args.resolve,
-                           revise=args.revise, revise_thr=args.revise_thr)
+                           revise=args.revise, revise_thr=args.revise_thr,
+                           remask=args.remask, remask_rounds=args.remask_rounds, remask_mode=args.remask_mode)
     print(f"método {meta['method']} | {args.num} muestras | " +
           " | ".join(f"{k} {v:.1f}" for k, v in stats.items()), flush=True)
     out = args.out or os.path.join(os.path.dirname(args.ckpt), "samples.png")

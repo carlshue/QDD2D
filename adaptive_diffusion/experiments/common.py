@@ -30,9 +30,9 @@ def load_model(path, device):
 
 @torch.no_grad()
 def generate(model, meta, labels, device, steps=None, temperature=1.0, batch=250, resolve_fresh=False,
-             revise=1.0, revise_thr=0.5, trace=None):
+             revise=1.0, revise_thr=0.5, trace=None, remask=0.0, remask_rounds=0, remask_mode="conf"):
     """Genera una imagen por etiqueta. Devuelve (imgs uint8 (N,S,S), estadísticas medias).
-    resolve_fresh sólo afecta a 'edit'; revise y revise_thr, a 'grow_merge'.
+    resolve_fresh sólo afecta a 'edit'; revise y revise_thr, a 'grow_merge'; remask*, a 'grow'.
     trace: models.heat.HeatTrace opcional (sólo 'edit' y 'grow_merge')."""
     use_amp = str(device).startswith("cuda")
     imgs, agg = [], {}
@@ -56,12 +56,14 @@ def generate(model, meta, labels, device, steps=None, temperature=1.0, batch=250
             else:
                 from models.adaptive_diffusion import sample
                 from structures.binary_quadtree import levels_to_image, tokens_to_levels
-                trees, evals, tok = sample(model, len(lab), steps or 8, lab, temperature, device)
+                rs = {}
+                trees, evals, tok = sample(model, len(lab), steps or 8, lab, temperature, device, remask=remask,
+                                           remask_rounds=remask_rounds, remask_mode=remask_mode, stats=rs)
                 out = np.stack([levels_to_image([lv[None] for lv in tokens_to_levels(t.numpy(), meta["depth"])])[0]
                                 for t in trees])
                 sizes = [len(t) for t in trees]
                 st = {"evals": evals, "tokens_por_muestra": tok, "nodos_final": float(np.mean(sizes)),
-                      "nodos_max": int(max(sizes))}
+                      "nodos_max": int(max(sizes)), **rs}
         imgs.append(out)
         for k, v in st.items():
             agg.setdefault(k, []).append(v)

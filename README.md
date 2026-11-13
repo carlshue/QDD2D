@@ -140,6 +140,39 @@ Nodos por nivel (media): 1 · 4 · 15,8 · 28,7 · 64 · 102,5. **La hipótesis 
 
 ---
 
+## 3.1 Resultados en MNIST 32×32 (noviembre de 2026)
+
+2000 muestras por medida y 3 semillas de muestreo (rangos mínimo–máximo). Imágenes reales: 98,7–99,0 % de
+acierto de clase y Fréchet 3,0–4,5. Los datos completos están en `adaptive_diffusion/results/analysis/`.
+
+| Caso | Temperatura | Acierto | Fréchet | Tokens por muestra |
+|---|---|---|---|---|
+| `grow` (sin unión), 8 pasos por nivel | 1,0 | 93,9–94,7 % | 6,9–9,2 | 3 030 |
+| `grow` (sin unión), 10 pasos por nivel | 0,9 | 96,5–97,1 % | 4,7–5,7 | 3 500 |
+| `grow` + reenmascarado por confianza 0,05 | 1,0 | 96,9–97,2 % | 5,7–6,0 | 3 140 |
+| `grow_merge` semilla 0, con unión, 8 pasos | 0,9 | 97,9–98,8 % | 8,6–10,5 | 3 650 |
+| `grow_merge` semilla 0, sin unión, 8 pasos | 0,9 | 97,5–98,0 % | 7,8–9,5 | 3 190 |
+| `grow_merge` semilla 1, con unión, 8 pasos | 0,9 | 97,8–98,2 % | 7,3–7,9 | 3 640 |
+| `grow_merge` semilla 1, sin unión, 8 pasos | 0,9 | 96,7–97,6 % | 7,8–8,6 | 3 160 |
+| `edit cell`, 32 pasos | 0,7 | 96,8–97,2 % | 8,0–9,3 | 7 190 |
+| `edit cell` + resolve, 32 pasos | 0,8 | 97,7–98,9 % | 5,0–5,5 | 23 260 |
+
+Lectura:
+
+- **La temperatura de muestreo pesa más que cualquier técnica probada.** `grow` pasa de Fréchet 7–9 a 5–6
+  solo con bajarla a 0,85–0,9. Toda comparación debe barrerla en cada método (`experiments.temperature_sweep`).
+- **`grow` con temperatura ajustada es la referencia:** empata en Fréchet con `edit cell` + resolve con 7
+  veces menos tokens.
+- **La unión entrenada (`grow_merge`) no mejora a `grow` en MNIST.** Sube el acierto (hasta 98,8 %) pero el
+  Fréchet es peor (7–10 frente a 5–6): muestras más reconocibles y menos variadas. La revisión actúa poco
+  (unas 2,4 revisiones y 1,6 uniones por imagen) y no poda: el árbol final tiene 215–220 nodos frente a 211.
+- **La varianza entre semillas de entrenamiento es grande:** las dos semillas de `grow_merge` difieren en
+  unos 2 puntos de Fréchet, más que el efecto de activar la unión. Con una semilla por caso no se
+  distinguen diferencias pequeñas.
+- **El reenmascarado estilo ReMDM sobre `grow`** (sin reentrenar, solo el nivel en curso) mejora por
+  confianza y no hace nada al azar; no supera al control de temperatura.
+- **El prior del árbol aleatorio decide el resultado de `edit`:** `cell` ≫ `level` ≫ `uniform`.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión
