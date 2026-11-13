@@ -81,11 +81,24 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 - `grow` con 3 semillas de entrenamiento da 4,7–5,7, 8,1–9,0 y 5,2–6,0 (nodos 211, 227, 216): no se
   distingue de `both`. La varianza entre entrenamientos manda; MNIST 32×32 no decide. Tablas en README 3.2.
 
+## Salto a 64×64: Quick, Draw! de trazo fino (en curso desde 2026-11-13)
+
+- Datos: `data/quickdraw.py`, 10 clases, 60 000 + 10 000 dibujos, trazo de 1 píxel, profundidad 6.
+  Árboles de ~930 nodos de media (máx. ~1750) frente a 4096 píxeles. `--dataset quickdraw`.
+- Clasificador de métricas: `results/classifier_quickdraw.pt`, 96,5 % en prueba; Fréchet de imágenes
+  reales (entrenamiento frente a prueba) 15–18, ese es el suelo.
+- Tiempos por entrenamiento de 30 000 pasos: `grow_merge` ~110 min, `edit` ~130 min, `grow` ~125 min
+  con `--workers 8` (sin ellos, 4 h).
+- Lanzados dos por caso (semillas 0 y 1): `qd_both`, `qd_grow`, `qd_edit_cell` y sus `_s1`. Logs en el
+  scratchpad de la sesión; resultados en `results/qd_*`.
+- Falta al terminar: barrido de temperatura de cada uno (con y sin unión; `edit` con resolve),
+  `correction_analysis` sobre `qd_both*`, README, commit y push.
+
 ## Pendiente
 
-2. Pasar a un problema mayor (64×64 de trazo fino o vóxeles 3D), con `grow`, `grow_merge both` y
-   `edit cell` + resolve; decidir el conjunto de datos con el usuario.
-3. Cabeza de calidad por nodo (ingrediente 3) si la detección del 60 % se queda corta.
+1. Terminar y evaluar la tanda de 64×64 (arriba).
+2. Cabeza de calidad por nodo (ingrediente 3) si la detección se queda corta.
+3. Caché por token / zonas frías y calientes (ingrediente 4) sobre árboles de 64×64.
 4. `sampling_analysis` y `heat_analysis` completos siguen sin ejecutarse dentro del repo.
 5. Al comparar métodos, barrer siempre la temperatura (`experiments.temperature_sweep`).
 
