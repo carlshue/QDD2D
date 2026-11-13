@@ -78,11 +78,11 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 - `both` (errores propios + ruido) es la mejor variante con unión: Fréchet 6,6–7,4 y 5,6–6,8.
   `self` sola empeora las muestras (8–11) aunque poda hasta ~208 nodos.
 - Con temperatura 1 la revisión mejora mucho a `both`; con temperatura ajustada, un punto o menos.
-- Sigue sin superar a `grow` a 0,9 (4,7–5,7, una sola semilla de entrenamiento). Tablas en README 3.2.
+- `grow` con 3 semillas de entrenamiento da 4,7–5,7, 8,1–9,0 y 5,2–6,0 (nodos 211, 227, 216): no se
+  distingue de `both`. La varianza entre entrenamientos manda; MNIST 32×32 no decide. Tablas en README 3.2.
 
 ## Pendiente
 
-1. Más semillas de `grow` (solo hay una) para saber si `both` lo iguala o no.
 2. Pasar a un problema mayor (64×64 de trazo fino o vóxeles 3D), con `grow`, `grow_merge both` y
    `edit cell` + resolve; decidir el conjunto de datos con el usuario.
 3. Cabeza de calidad por nodo (ingrediente 3) si la detección del 60 % se queda corta.

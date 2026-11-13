@@ -198,7 +198,7 @@ de entrenamiento 0 y el de la 1, con la mejor temperatura de cada una):
 | `prior` | 8,6–10,5 · 6,4–8,0 | 7,0–8,2 · 7,2–8,4 | 1,9–2,8 | 214–218 |
 | `self` | 7,9–9,4 · 10,5–11,1 | 10,5–12,4 · 11,5–13,5 | 2,0–4,6 | 207–210 |
 | `both` | 6,6–7,4 · 5,6–6,8 | 7,4–8,7 · 6,1–6,8 | 3,1–4,9 | 212–216 |
-| `grow` sin unión (referencia, 1 semilla) | — | 4,7–5,7 | — | 211 |
+| `grow` sin unión (3 semillas) | — | 4,7–5,7 · 8,1–9,0 · 5,2–6,0 | — | 211 · 227 · 216 |
 
 Lectura:
 
@@ -208,8 +208,9 @@ Lectura:
   las muestras aunque revisa bien; con temperatura 1 y sin revisión cae a Fréchet 23–29.
 - **Con temperatura 1 la revisión ahora importa mucho** (`both`: de 11–14 sin unión a 6–9 con ella). Con
   la temperatura ajustada la diferencia se reduce a un punto o menos.
-- **Sigue sin superar a `grow` con temperatura ajustada** (4,7–5,7), aunque `both` semilla 1 se queda cerca
-  (5,6–6,8). `grow` solo tiene una semilla de entrenamiento, así que la comparación no es concluyente.
+- **`grow` y `both` no se distinguen.** Con tres semillas de entrenamiento `grow` da 4,7–5,7, 8,1–9,0 y
+  5,2–6,0; `both` da 6,6–7,4 y 5,6–6,8. La varianza entre entrenamientos (hasta 4 puntos de Fréchet en
+  `grow`) es mayor que la diferencia entre métodos. En MNIST 32×32 no se puede decidir.
 - **Poda:** `self` deja el árbol en 207–210 nodos (el mínimo para estas imágenes es ~209); las demás, 212–218.
 
 ## 4. Estado del arte
