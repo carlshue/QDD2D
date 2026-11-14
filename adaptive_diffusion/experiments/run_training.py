@@ -53,6 +53,8 @@ def main():
     p.add_argument("--workers", type=int, default=0,
                    help="sólo grow: procesos que preparan los lotes (0 = en el proceso principal, como antes)")
     p.add_argument("--save_every", type=int, default=2000)
+    p.add_argument("--accum", type=int, default=1,
+                   help="acumular gradiente de N lotes por paso (lote efectivo = batch × N); para gráficas con poca memoria")
     p.add_argument("--init", default=None,
                    help="checkpoint del que partir (afinado). Puede ser de otro método: un 'grow' no tiene "
                         "entrada de tiempo, así que esa parte arranca en cero y no altera la red de partida")
@@ -144,30 +146,34 @@ def main():
           f"{sum(p.numel() for p in model.parameters()) / 1e6:.2f} M parámetros | {n_data} árboles", flush=True)
 
     t0, running, running_acc = time.time(), 0.0, 0.0
+    steps_total = args.steps * args.accum
     for step, (batch, labels) in enumerate(batches(), start=1):
         drop = torch.rand(len(labels), device=device) < args.cond_drop
         labels = torch.where(drop, torch.full_like(labels, model.null_class), labels)
         with torch.autocast("cuda", dtype=torch.bfloat16, enabled=use_amp):
             loss, acc = loss_fn(model, batch, labels)
-        opt.zero_grad(set_to_none=True)
-        scaler.scale(loss).backward()
+        if (step - 1) % args.accum == 0:
+            opt.zero_grad(set_to_none=True)
+        scaler.scale(loss / args.accum).backward()
+        if step % args.accum:
+            continue
         scaler.unscale_(opt)
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         scaler.step(opt)
         scaler.update()
         running += loss.item()
         running_acc += 0.0 if acc is None else acc.item()
-        if step in (1, 10):
-            print(f"paso {step:6d} | pérdida {loss.item():.4f} | {time.time() - t0:.0f}s", flush=True)
-        if step % 100 == 0:
-            eta = (time.time() - t0) / step * (args.steps - step) / 60
+        if step in (args.accum, 10 * args.accum):
+            print(f"paso {step // args.accum:6d} | pérdida {loss.item():.4f} | {time.time() - t0:.0f}s", flush=True)
+        if step % (100 * args.accum) == 0:
+            eta = (time.time() - t0) / step * (steps_total - step) / 60
             extra = "" if acc is None else f" | nodos ruidosos corregidos {100 * running_acc / 100:.1f}%"
-            print(f"paso {step:6d} | pérdida {running / 100:.4f}{extra} | {time.time() - t0:.0f}s | "
+            print(f"paso {step // args.accum:6d} | pérdida {running / 100:.4f}{extra} | {time.time() - t0:.0f}s | "
                   f"faltan ~{eta:.0f} min", flush=True)
             running, running_acc = 0.0, 0.0
-        if step % args.save_every == 0:
+        if step % (args.save_every * args.accum) == 0:
             save(model, args, depth, prior)
-        if step >= args.steps:
+        if step >= steps_total:
             break
     save(model, args, depth, prior)
     print("guardado", os.path.join(args.out, "model.pt"))

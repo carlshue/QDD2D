@@ -316,6 +316,30 @@ mejor temperatura de cada caso (0,7–0,8 sin corrector; 0,9 con él):
   Con umbral 0,3 casi no actúa y no mejora.
 - No igualado: la memoria (dos redes, el doble de parámetros). Falta comparar con un `grow` mayor.
 
+## 3.6 Cierre: corrector frente a un `grow` con el doble de parámetros (noviembre de 2026)
+
+`qd_grow_L8_ft*`: `grow` de 8 capas (el doble que el de 3.5), misma receta (30 000 pasos a 1e-3 +
+5 000 a 3e-4), 2 semillas. Cada token cuesta el doble, así que el cómputo se compara en
+tokens × capas/4 («tokens equivalentes»). Fréchet medio, mejor temperatura, semilla 0 · semilla 1:
+
+| Tokens equivalentes | `grow` 4 capas + corrector | `grow` 8 capas (pasos por nivel) |
+|---|---|---|
+| ~10 400 | 44,5 · 58,8 | 48,0 · 58,7 (3) |
+| ~13 800 | 45,6 · 54,4 | 43,0 · 52,1 (4) |
+| ~17 000 | 45,3 · 53,7 | **38,4 · 46,3** (5) |
+| ~20 500 | — | 35,3 · 41,9 (6) |
+| ~27 000 | — | 32,2 · 38,0 (8) |
+
+- A igual cómputo empatan en el presupuesto más bajo y **el `grow` grande gana a partir de ~14 000
+  tokens equivalentes**; además sigue mejorando con más pasos, mientras el corrector se estanca en
+  ~44 · 54. A igual memoria (mismos parámetros en total) gana por mucho: 32 · 38.
+- Salvedad: el `grow` grande recibió cerca del doble de cómputo de entrenamiento.
+- **Decisión (criterio acordado): se cierra la línea de unión/revisión.** Ni la unión dentro de la red
+  (3.3, 3.4) ni el corrector aparte (3.5) compensan frente a escalar `grow`.
+- El árbol gasta 963 nodos para 234 píxeles llenos (51 % hojas vacías, 81 % en los dos últimos
+  niveles). Siguiente línea: un token por nodo subdividido con el patrón de ocupación de sus hijos
+  (15 símbolos), que deja la secuencia en ~241 tokens.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión

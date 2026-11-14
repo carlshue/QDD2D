@@ -125,6 +125,22 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 - No poda (3–5 uniones por imagen, 980–1 000 nodos) y sólo detecta ~19 % de los errores. Memoria no
   igualada (dos redes). Tabla en README 3.5.
 
+### Cierre de la línea de unión/revisión (2026-11-14)
+
+- `grow` de 8 capas (`qd_grow_L8_ft*`, doble de parámetros, doble de coste por token) frente al
+  corrector a igual cómputo (tokens × capas/4): empate en ~10 000; a ~17 000 gana el grande
+  (38 · 46 frente a 45 · 54) y sigue mejorando (32 · 38 con 8 pasos). Tabla en README 3.6.
+- **Línea de unión/revisión cerrada por decisión del usuario**: no compensa frente a escalar `grow`.
+  No retomarla salvo que lo pida.
+- `run_training --accum N` acumula gradiente (la gráfica de 16 GB no aguanta 8 capas con lote 256;
+  con `CUDA_VISIBLE_DEVICES=1` PyTorch ve la de 16 GB, al revés que `nvidia-smi`).
+- Tiempo del `grow` de 8 capas: ~4 h 30 min los 30 000 pasos + ~45 min el afinado.
+- Medida de la estructura (3 000 dibujos): 963 nodos para 234 píxeles llenos; 51 % hojas vacías; 81 %
+  de los nodos en los dos últimos niveles; `FULL` casi no existe fuera del nivel de píxel; 131 bloques
+  2×2 no vacíos con sólo 15 patrones. Propuesta siguiente: un token por nodo `SPLIT` con el patrón de
+  ocupación de sus 4 hijos (~241 tokens en vez de 963; en 3D, un byte por nodo).
+- Al usuario le interesan sobre todo mejoras de estructura de datos.
+
 ## Pendiente
 
 1. A 64×64: más semillas y/o modelo mayor o más pasos para bajar la varianza entre entrenamientos
