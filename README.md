@@ -355,6 +355,7 @@ que `grow` (30 000 pasos a 1e-3 + 5 000 a 3e-4), 2 semillas. Fréchet medio (sem
 | **`tile` 4 capas, 8 pasos** | 0,9 | **32,3 · 33,4** | 93–94 · 92–93 % | **3 170** |
 | `tile` 4 capas, 16 pasos | 0,9 | 32,2 · 32,3 | 92–93 · 93–94 % | 5 130 |
 | `tile` 4 capas, 32 pasos | 0,9 | 30,0 · 35,1 | 93 · 92–93 % | 8 200 |
+| **`tile` 8 capas, 8 pasos** | 0,9 | **22,2 · 24,9** | 94–95 · 94–95 % | 3 170 (×2) |
 
 - **`tile` iguala al `grow` del doble de tamaño con ~8 veces menos cómputo** (3 170 tokens de una red
   de 4 capas frente a 13 450 de una de 8), y mejora al `grow` del mismo tamaño de 51 · 67 a 32 · 33.
@@ -363,6 +364,9 @@ que `grow` (30 000 pasos a 1e-3 + 5 000 a 3e-4), 2 semillas. Fréchet medio (sem
 - Más pasos por nivel no mejoran: 8 bastan.
 - Es sensible a la temperatura: 0,9 es el óptimo; a 0,7 sube a ~68.
 - Los árboles salen algo cortos: 235–237 tokens frente a 246 reales.
+- **Con 8 capas (`qd_tile_L8_ft*`, 1,7 M) baja a 22,2 · 24,9**, con ~6 300 tokens equivalentes: menos de
+  la mitad del cómputo del `grow` de 4 capas y cerca del suelo de datos reales (15–18). El óptimo sigue
+  en 0,9 y es estrecho (0,95: 25,2 · 29,3; 0,85: 29,5 · 30,4). Entrena en ~1 h 10 min + 8 min de afinado.
 
 ## 4. Estado del arte
 

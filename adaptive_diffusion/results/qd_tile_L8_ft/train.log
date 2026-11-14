@@ -1,0 +1,57 @@
+preparando los datos...
+tile: 233 tokens de media por árbol
+partiendo de results/qd_tile_L8/model.pt (parámetros nuevos: 0)
+método tile | dispositivo NVIDIA RTX PRO 4500 Blackwell | precisión mixta sí | 1.63 M parámetros | 60000 árboles
+paso      1 | pérdida 0.9265 | 1s
+paso     10 | pérdida 0.8433 | 2s
+paso    100 | pérdida 0.8592 | 11s | faltan ~9 min
+paso    200 | pérdida 0.8506 | 22s | faltan ~9 min
+paso    300 | pérdida 0.8516 | 33s | faltan ~9 min
+paso    400 | pérdida 0.8605 | 44s | faltan ~8 min
+paso    500 | pérdida 0.8472 | 55s | faltan ~8 min
+paso    600 | pérdida 0.8512 | 66s | faltan ~8 min
+paso    700 | pérdida 0.8451 | 77s | faltan ~8 min
+paso    800 | pérdida 0.8416 | 87s | faltan ~8 min
+paso    900 | pérdida 0.8538 | 98s | faltan ~7 min
+paso   1000 | pérdida 0.8522 | 109s | faltan ~7 min
+paso   1100 | pérdida 0.8519 | 120s | faltan ~7 min
+paso   1200 | pérdida 0.8540 | 131s | faltan ~7 min
+paso   1300 | pérdida 0.8533 | 141s | faltan ~7 min
+paso   1400 | pérdida 0.8522 | 152s | faltan ~7 min
+paso   1500 | pérdida 0.8503 | 163s | faltan ~6 min
+paso   1600 | pérdida 0.8491 | 174s | faltan ~6 min
+paso   1700 | pérdida 0.8531 | 185s | faltan ~6 min
+paso   1800 | pérdida 0.8456 | 196s | faltan ~6 min
+paso   1900 | pérdida 0.8448 | 207s | faltan ~6 min
+paso   2000 | pérdida 0.8369 | 218s | faltan ~5 min
+paso   2100 | pérdida 0.8465 | 229s | faltan ~5 min
+paso   2200 | pérdida 0.8407 | 239s | faltan ~5 min
+paso   2300 | pérdida 0.8474 | 250s | faltan ~5 min
+paso   2400 | pérdida 0.8530 | 261s | faltan ~5 min
+paso   2500 | pérdida 0.8465 | 272s | faltan ~5 min
+paso   2600 | pérdida 0.8449 | 283s | faltan ~4 min
+paso   2700 | pérdida 0.8358 | 294s | faltan ~4 min
+paso   2800 | pérdida 0.8475 | 305s | faltan ~4 min
+paso   2900 | pérdida 0.8377 | 315s | faltan ~4 min
+paso   3000 | pérdida 0.8469 | 327s | faltan ~4 min
+paso   3100 | pérdida 0.8536 | 337s | faltan ~3 min
+paso   3200 | pérdida 0.8442 | 348s | faltan ~3 min
+paso   3300 | pérdida 0.8492 | 359s | faltan ~3 min
+paso   3400 | pérdida 0.8451 | 369s | faltan ~3 min
+paso   3500 | pérdida 0.8428 | 380s | faltan ~3 min
+paso   3600 | pérdida 0.8433 | 391s | faltan ~3 min
+paso   3700 | pérdida 0.8447 | 402s | faltan ~2 min
+paso   3800 | pérdida 0.8378 | 413s | faltan ~2 min
+paso   3900 | pérdida 0.8471 | 424s | faltan ~2 min
+paso   4000 | pérdida 0.8394 | 435s | faltan ~2 min
+paso   4100 | pérdida 0.8393 | 445s | faltan ~2 min
+paso   4200 | pérdida 0.8491 | 456s | faltan ~1 min
+paso   4300 | pérdida 0.8446 | 467s | faltan ~1 min
+paso   4400 | pérdida 0.8363 | 478s | faltan ~1 min
+paso   4500 | pérdida 0.8435 | 489s | faltan ~1 min
+paso   4600 | pérdida 0.8423 | 499s | faltan ~1 min
+paso   4700 | pérdida 0.8391 | 510s | faltan ~1 min
+paso   4800 | pérdida 0.8415 | 521s | faltan ~0 min
+paso   4900 | pérdida 0.8400 | 532s | faltan ~0 min
+paso   5000 | pérdida 0.8406 | 543s | faltan ~0 min
+guardado results/qd_tile_L8_ft/model.pt

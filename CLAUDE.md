@@ -150,7 +150,9 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 - Resultado (4 capas, misma receta que `grow`): Fréchet 32,3 · 33,4 a T 0,9 con ~3 170 tokens por
   muestra. Iguala al `grow` de 8 capas (32 · 38 con 13 450 tokens ×2) con ~8 veces menos cómputo.
   Entrena en ~40 min. 8 pasos por nivel bastan. Tabla en README 3.7.
-- Plan acordado: (1b) `tile` con modelo mayor a igual cómputo; (2) atención por ventanas a 64×64 (la
+- `tile` de 8 capas (`qd_tile_L8_ft*`): Fréchet 22,2 · 24,9 a T 0,9 con ~3 170 tokens ×2 (acierto
+  94–95 %). Óptimo de temperatura estrecho. Entrena en ~1 h 10 min + 8 min. Es la mejor marca.
+- Plan acordado: (1b) hecho; (2) atención por ventanas a 64×64 (la
   atención es global y no escala; OctGPT usa ventanas en orden Morton con dilatación); (3) subir a
   128×128 o 3D. El usuario quiere estudiar además el tamaño de diccionario (bloques 2×2 → 4×4).
 - El usuario no quiere tandas de muchas horas: dar estimación de tiempo antes de lanzar.

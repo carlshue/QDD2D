@@ -1,0 +1,72 @@
+[
+ {
+  "metodo": "tile",
+  "resolve": false,
+  "steps": 8,
+  "temperatura": 1.0,
+  "acc_min": 91.85,
+  "acc_max": 93.3,
+  "frechet_min": 28.72,
+  "frechet_max": 31.59,
+  "frechet_media": 30.56,
+  "evals": 35.0,
+  "tokens_por_muestra": 3122,
+  "nodos_final": 232.5
+ },
+ {
+  "metodo": "tile",
+  "resolve": false,
+  "steps": 8,
+  "temperatura": 0.95,
+  "acc_min": 93.3,
+  "acc_max": 94.55,
+  "frechet_min": 27.06,
+  "frechet_max": 30.88,
+  "frechet_media": 29.27,
+  "evals": 35.0,
+  "tokens_por_muestra": 3137,
+  "nodos_final": 233.5
+ },
+ {
+  "metodo": "tile",
+  "resolve": false,
+  "steps": 8,
+  "temperatura": 0.9,
+  "acc_min": 94.35,
+  "acc_max": 94.6,
+  "frechet_min": 22.35,
+  "frechet_max": 27.2,
+  "frechet_media": 24.89,
+  "evals": 35.0,
+  "tokens_por_muestra": 3162,
+  "nodos_final": 235.1
+ },
+ {
+  "metodo": "tile",
+  "resolve": false,
+  "steps": 8,
+  "temperatura": 0.85,
+  "acc_min": 94.55,
+  "acc_max": 96.3,
+  "frechet_min": 27.45,
+  "frechet_max": 35.46,
+  "frechet_media": 30.44,
+  "evals": 35.0,
+  "tokens_por_muestra": 3173,
+  "nodos_final": 235.6
+ },
+ {
+  "metodo": "tile",
+  "resolve": false,
+  "steps": 8,
+  "temperatura": 0.8,
+  "acc_min": 96.45,
+  "acc_max": 96.75,
+  "frechet_min": 38.56,
+  "frechet_max": 39.56,
+  "frechet_media": 39.1,
+  "evals": 35.0,
+  "tokens_por_muestra": 3187,
+  "nodos_final": 236.7
+ }
+]
