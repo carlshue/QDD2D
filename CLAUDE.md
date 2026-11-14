@@ -81,22 +81,29 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 - `grow` con 3 semillas de entrenamiento da 4,7–5,7, 8,1–9,0 y 5,2–6,0 (nodos 211, 227, 216): no se
   distingue de `both`. La varianza entre entrenamientos manda; MNIST 32×32 no decide. Tablas en README 3.2.
 
-## Salto a 64×64: Quick, Draw! de trazo fino (en curso desde 2026-11-13)
+## 64×64: Quick, Draw! de trazo fino (evaluado 2026-11-14)
 
 - Datos: `data/quickdraw.py`, 10 clases, 60 000 + 10 000 dibujos, trazo de 1 píxel, profundidad 6.
   Árboles de ~930 nodos de media (máx. ~1750) frente a 4096 píxeles. `--dataset quickdraw`.
 - Clasificador de métricas: `results/classifier_quickdraw.pt`, 96,5 % en prueba; Fréchet de imágenes
   reales (entrenamiento frente a prueba) 15–18, ese es el suelo.
-- Tiempos por entrenamiento de 30 000 pasos: `grow_merge` ~110 min, `edit` ~130 min, `grow` ~125 min
-  con `--workers 8` (sin ellos, 4 h).
-- Lanzados dos por caso (semillas 0 y 1): `qd_both`, `qd_grow`, `qd_edit_cell` y sus `_s1`. Logs en el
-  scratchpad de la sesión; resultados en `results/qd_*`.
-- Falta al terminar: barrido de temperatura de cada uno (con y sin unión; `edit` con resolve),
-  `correction_analysis` sobre `qd_both*`, README, commit y push.
+- Tiempos reales por entrenamiento de 30 000 pasos: `grow_merge` 112–130 min, `grow` ~135 min con
+  `--workers 8`, `edit` ~125 min. La gráfica 1 va ~15 % más lenta. El muestreo es barato (~0,01 s por
+  muestra): un barrido de 7 temperaturas × 3 semillas tarda pocos minutos.
+- Mejor Fréchet por modelo (semilla 0 · 1), temperatura barrida: `grow` 78–81 (T 0,7) · 128–135;
+  `both` con unión 137–150 · 97–106 (T 0,8); `both` sin unión 175–189 · 125–133; `edit cell` + resolve
+  ~200 con ~119 000 tokens; `edit cell` 267–295.
+- Dentro del mismo modelo la unión ayuda mucho (a T=1 divide el Fréchet por tres) y actúa 11–17 veces
+  por imagen; detección de errores propios 68–71 %, arreglo 68–71 %, falsa alarma 0,3–0,4 %.
+- Frente a `grow` sigue sin haber ganador: las semillas se cruzan y la varianza entre entrenamientos
+  es de ~50 puntos. `grow` genera árboles grandes (1 020–1 160 nodos), la unión algo cortos (~890).
+- `edit` queda descartado a 64×64. Todo está lejos del suelo: el modelo (dim 128, 4 capas) parece
+  quedarse corto. Tablas en README 3.3.
 
 ## Pendiente
 
-1. Terminar y evaluar la tanda de 64×64 (arriba).
+1. A 64×64: más semillas y/o modelo mayor o más pasos para bajar la varianza entre entrenamientos
+   antes de comparar `grow` con la unión.
 2. Cabeza de calidad por nodo (ingrediente 3) si la detección se queda corta.
 3. Caché por token / zonas frías y calientes (ingrediente 4) sobre árboles de 64×64.
 4. `sampling_analysis` y `heat_analysis` completos siguen sin ejecutarse dentro del repo.

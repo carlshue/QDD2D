@@ -1,0 +1,2 @@
+referencia con imágenes reales: acierto 96.5% | Fréchet entrenamiento-prueba 13.48 (suelo de la métrica)
+{"modelo": "results/qd_grow_s1/model.pt", "metodo": "grow", "muestras": 2000, "resolve": false, "revise": 1.0, "revise_thr": 0.5, "remask": 0.0, "remask_rounds": 0, "remask_mode": "conf", "acierto_clase_pct": 78.6, "frechet": 196.49, "segundos_por_muestra": 0.0095, "evals": 44.0, "tokens_por_muestra": 14514.1, "nodos_final": 1062.0, "nodos_max": 2109.0, "reenmascarados": 0.0, "cambios": 0.0, "uniones": 0.0, "subdivisiones_tardias": 0.0}

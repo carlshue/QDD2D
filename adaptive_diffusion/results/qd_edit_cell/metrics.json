@@ -1,0 +1,20 @@
+{
+  "modelo": "results/qd_edit_cell/model.pt",
+  "metodo": "edit",
+  "muestras": 2000,
+  "resolve": false,
+  "revise": 1.0,
+  "revise_thr": 0.5,
+  "remask": 0.0,
+  "remask_rounds": 0,
+  "remask_mode": "conf",
+  "acierto_clase_pct": 68.35,
+  "frechet": 481.6,
+  "segundos_por_muestra": 0.0122,
+  "evals": 36.8,
+  "tokens_por_muestra": 32710.3,
+  "nodos_inicio": 928.1,
+  "nodos_final": 1235.8,
+  "nodos_max": 2333.0,
+  "sin_resolver": 0.0
+}

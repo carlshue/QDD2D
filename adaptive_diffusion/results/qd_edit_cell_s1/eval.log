@@ -1,0 +1,2 @@
+referencia con imágenes reales: acierto 96.5% | Fréchet entrenamiento-prueba 13.48 (suelo de la métrica)
+{"modelo": "results/qd_edit_cell_s1/model.pt", "metodo": "edit", "muestras": 2000, "resolve": false, "revise": 1.0, "revise_thr": 0.5, "remask": 0.0, "remask_rounds": 0, "remask_mode": "conf", "acierto_clase_pct": 70.1, "frechet": 465.85, "segundos_por_muestra": 0.0133, "evals": 36.5, "tokens_por_muestra": 32446.9, "nodos_inicio": 933.9, "nodos_final": 1226.5, "nodos_max": 2537.0, "sin_resolver": 0.0}

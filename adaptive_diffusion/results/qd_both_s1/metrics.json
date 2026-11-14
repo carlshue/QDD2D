@@ -1,0 +1,22 @@
+{
+  "modelo": "results/qd_both_s1/model.pt",
+  "metodo": "grow_merge",
+  "muestras": 2000,
+  "resolve": false,
+  "revise": 1.0,
+  "revise_thr": 0.5,
+  "remask": 0.0,
+  "remask_rounds": 0,
+  "remask_mode": "conf",
+  "acierto_clase_pct": 84.95,
+  "frechet": 122.91,
+  "segundos_por_muestra": 0.006,
+  "evals": 49.0,
+  "tokens_por_muestra": 15803.9,
+  "nodos_final": 871.4,
+  "nodos_max": 1761.0,
+  "revisiones": 20.3,
+  "uniones": 11.6,
+  "subdivisiones_tardias": 8.6,
+  "sin_resolver": 0.0
+}

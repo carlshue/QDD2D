@@ -213,6 +213,56 @@ Lectura:
   `grow`) es mayor que la diferencia entre métodos. En MNIST 32×32 no se puede decidir.
 - **Poda:** `self` deja el árbol en 207–210 nodos (el mínimo para estas imágenes es ~209); las demás, 212–218.
 
+## 3.3 Salto a 64×64: Quick, Draw! de trazo fino (noviembre de 2026)
+
+MNIST 32×32 no separaba los métodos, así que se sube a dibujos de trazo de 1 píxel a 64×64
+(`data/quickdraw.py`, 10 clases, 60 000 + 10 000 dibujos, profundidad 6). Los árboles reales tienen
+~930 nodos de media frente a 4096 píxeles. El clasificador de métricas acierta el 96,5 % en prueba y
+el Fréchet entre imágenes reales de entrenamiento y de prueba es 15–18: ese es el suelo.
+
+Mismo modelo que en MNIST (dim 128, 4 capas), 30 000 pasos, **2 semillas de entrenamiento por caso**,
+2000 muestras, 3 semillas de muestreo, temperatura barrida de 1,0 a 0,6
+(`results/analysis/temperature_qd_*.json`). Se da la mejor temperatura de cada modelo.
+
+| Caso | Semilla | Temp. | Acierto | Fréchet | Tokens/muestra | Nodos |
+|---|---|---|---|---|---|---|
+| `grow` | 0 | 0,7 | 92,5–92,9 % | 78–81 | 14 100 | 1 024 |
+| `grow` | 1 | 0,8 | 85,0–86,2 % | 128–135 | 15 300 | 1 122 |
+| `grow_merge` (`both`) con unión | 0 | 0,8 | 88,5–89,2 % | 137–150 | 15 800 | 890 |
+| `grow_merge` (`both`) con unión | 1 | 0,8 | 87,8–88,7 % | 97–106 | 15 800 | 894 |
+| `grow_merge` (`both`) sin unión | 0 | 0,6 | 92,0–92,5 % | 175–189 | 12 900 | 923 |
+| `grow_merge` (`both`) sin unión | 1 | 0,7 | 89,0–90,0 % | 125–133 | 12 700 | 900 |
+| `edit cell` + resolve, 32 pasos | 0 | 0,8 | 78,3–79,0 % | 200–210 | 119 100 | 912 |
+| `edit cell` + resolve, 32 pasos | 1 | 0,8 | 79,2–81,0 % | 192–208 | 118 600 | 898 |
+| `edit cell` | 0 | 0,6 | 77,7–78,7 % | 288–295 | 29 000 | 976 |
+| `edit cell` | 1 | 0,6 | 79,0–79,1 % | 267–280 | 28 900 | 970 |
+
+A temperatura 1: `grow` 148–150 y 190–203; con unión 166–172 y 113–123; el mismo modelo sin unión
+437–467 y 332–338.
+
+Medida directa de correcciones sobre errores propios (`correction_propio_quickdraw.json`, 2000 árboles):
+
+| Modelo | Detección | Falsa alarma | Arreglo | Split de más (det.) | Split de menos (det.) |
+|---|---|---|---|---|---|
+| `qd_both` | 70,8 % | 0,4 % | 70,6 % | 83,4 % | 59,7 % |
+| `qd_both_s1` | 68,1 % | 0,3 % | 67,9 % | 81,0 % | 56,6 % |
+
+Lectura:
+
+- **La revisión pesa mucho más que en MNIST dentro del mismo modelo.** Con la mejor temperatura de
+  cada variante, activar la unión baja el Fréchet de 175–189 a 137–150 y de 125–133 a 97–106; a
+  temperatura 1 lo divide por tres. Actúa 11–17 veces por imagen (en MNIST, ~2,4) y detecta el 68–71 %
+  de los errores propios (en MNIST, 60 %).
+- **Aun así no hay ganador frente a `grow`.** Los intervalos de las dos semillas se cruzan: `grow`
+  78–81 y 128–135, unión 137–150 y 97–106. La varianza entre entrenamientos (~50 puntos) sigue
+  mandando; hacen falta más semillas o un modelo más estable para decidir.
+- **Tamaño del árbol:** `grow` se pasa (1 020–1 160 nodos frente a ~930 reales) y con unión se queda
+  algo corto (~890). Es la primera señal de poda, pero no se traduce en menos cómputo: 15 800 tokens
+  frente a 14 100–15 300.
+- **`edit` no escala:** el doble de Fréchet con 8 veces más tokens con resolve. Se descarta a 64×64.
+- **Todo queda lejos del suelo** (≥78 frente a 15–18). El modelo es el mismo de MNIST y los árboles
+  son 4,4 veces mayores: probablemente falta capacidad o entrenamiento, y eso infla la varianza.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión

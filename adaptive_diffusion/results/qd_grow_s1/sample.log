@@ -1,0 +1,2 @@
+método grow | 100 muestras | evals 44.0 | tokens_por_muestra 14602.8 | nodos_final 1067.0 | nodos_max 1781.0 | reenmascarados 0.0 | cambios 0.0 | uniones 0.0 | subdivisiones_tardias 0.0
+guardado results/qd_grow_s1/samples.png

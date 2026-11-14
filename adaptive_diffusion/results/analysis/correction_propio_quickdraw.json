@@ -1,0 +1,50 @@
+{
+ "results/qd_both/model.pt": {
+  "umbral": 0.5,
+  "errores_por_arbol": 2.65,
+  "tasa_error_pct": 2.4,
+  "deteccion_pct": 70.8,
+  "falsa_alarma_pct": 0.4,
+  "arreglo_pct": 70.6,
+  "split_de_mas": {
+   "n": 14917,
+   "deteccion_pct": 83.4,
+   "arreglo_pct": 83.4
+  },
+  "split_de_menos": {
+   "n": 16855,
+   "deteccion_pct": 59.7,
+   "arreglo_pct": 59.5
+  },
+  "relleno": {
+   "n": 77,
+   "deteccion_pct": 53.2,
+   "arreglo_pct": 16.9
+  },
+  "fuente_de_errores": "propio"
+ },
+ "results/qd_both_s1/model.pt": {
+  "umbral": 0.5,
+  "errores_por_arbol": 2.58,
+  "tasa_error_pct": 2.4,
+  "deteccion_pct": 68.1,
+  "falsa_alarma_pct": 0.3,
+  "arreglo_pct": 67.9,
+  "split_de_mas": {
+   "n": 14557,
+   "deteccion_pct": 81.0,
+   "arreglo_pct": 81.0
+  },
+  "split_de_menos": {
+   "n": 16320,
+   "deteccion_pct": 56.6,
+   "arreglo_pct": 56.3
+  },
+  "relleno": {
+   "n": 78,
+   "deteccion_pct": 65.4,
+   "arreglo_pct": 19.2
+  },
+  "fuente_de_errores": "propio"
+ }
+}
