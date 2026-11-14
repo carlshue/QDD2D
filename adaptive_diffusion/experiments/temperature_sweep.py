@@ -27,6 +27,10 @@ def main():
     p.add_argument("--resolve", action="store_true")
     p.add_argument("--revise", type=float, default=1.0)
     p.add_argument("--revise_thr", type=float, default=0.5)
+    p.add_argument("--corrector", default=None, help="sólo grow: checkpoint de experiments.train_corrector")
+    p.add_argument("--corr_thr", type=float, default=0.5)
+    p.add_argument("--corr_rounds", type=int, default=1)
+    p.add_argument("--tag", default="", help="sufijo para el fichero de salida")
     p.add_argument("--device", default="auto")
     args = p.parse_args()
 
@@ -37,6 +41,7 @@ def main():
     f_test, _ = embed(clf, test, device)
     labels = torch.arange(args.num) % 10
     model, meta = load_model(args.ckpt, device)
+    corr = load_model(args.corrector, device)[0] if args.corrector else None
     out = []
     for steps in args.steps:
         for temp in args.temps:
@@ -44,7 +49,8 @@ def main():
             for seed in range(args.seeds):
                 torch.manual_seed(seed)
                 imgs, st = generate(model, meta, labels, device, steps, temp, resolve_fresh=args.resolve,
-                                    revise=args.revise, revise_thr=args.revise_thr)
+                                    revise=args.revise, revise_thr=args.revise_thr,
+                                    corrector=corr, corr_thr=args.corr_thr, corr_rounds=args.corr_rounds)
                 feats, preds = embed(clf, imgs, device)
                 runs.append({"acc": 100 * float((preds == labels.numpy()).mean()), "frechet": frechet(feats, f_test), **st})
             r = {"metodo": meta["method"], "resolve": args.resolve, "steps": steps, "temperatura": temp,
@@ -53,7 +59,7 @@ def main():
                  "frechet_max": round(max(x["frechet"] for x in runs), 2),
                  "frechet_media": round(float(np.mean([x["frechet"] for x in runs])), 2),
                  **{k: round(float(np.mean([x[k] for x in runs])), 2)
-                    for k in ("revisiones", "uniones", "subdivisiones_tardias") if k in runs[0]},
+                    for k in ("revisiones", "cambios", "uniones", "subdivisiones_tardias") if k in runs[0]},
                  "evals": round(float(np.mean([x["evals"] for x in runs])), 1),
                  "tokens_por_muestra": round(float(np.mean([x["tokens_por_muestra"] for x in runs]))),
                  "nodos_final": round(float(np.mean([x["nodos_final"] for x in runs])), 1)}
@@ -61,7 +67,8 @@ def main():
             print(json.dumps(r, ensure_ascii=False), flush=True)
     os.makedirs("results/analysis", exist_ok=True)
     name = os.path.basename(os.path.dirname(args.ckpt)) + ("_resolve" if args.resolve else "") \
-        + ("_sin_union" if args.revise <= 0 else "") + (f"_thr{args.revise_thr:g}" if args.revise_thr != 0.5 else "")
+        + ("_sin_union" if args.revise <= 0 else "") + (f"_thr{args.revise_thr:g}" if args.revise_thr != 0.5 else "") \
+        + (f"_corr{args.corr_thr:g}x{args.corr_rounds}" if corr else "") + args.tag
     with open(f"results/analysis/temperature_{name}.json", "w", encoding="utf-8") as f:
         json.dump(out, f, indent=1, ensure_ascii=False)
 

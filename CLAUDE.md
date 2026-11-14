@@ -112,6 +112,19 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 - Los modelos tienen 0,86 M de parámetros (dim 128, 4 capas).
 - Tabla en README 3.4; comparativa visual en `results/analysis/comparativa_quickdraw.png`.
 
+### Corrector aparte sobre `grow`, a igual cómputo (2026-11-14)
+
+- Criterio del usuario: una componente de revisión sólo vale si mejora **a igual coste computacional**;
+  si no, ese coste se gasta en un `grow` mayor. Comparar siempre a tokens por muestra iguales.
+- `experiments.train_corrector --gen <grow> --out <dir>`: red aparte del mismo tamaño, generador
+  intacto; `temperature_sweep --corrector <ckpt> [--corr_thr --corr_rounds --tag]`. Actúa al acabar
+  cada nivel, antes de crear los hijos; cada pasada cuenta como una evaluación.
+- Resultado (Fréchet medio, s0 · s1, mismo presupuesto de tokens): `grow` solo 51–52 · 67–70;
+  `grow` + 5 000 pasos más 50–51 · 63–64; `grow` + corrector 44–46 · 54–58. Gana en las dos semillas
+  y en todos los presupuestos (10 000–17 000 tokens). Primera variante de revisión que gana a igual coste.
+- No poda (3–5 uniones por imagen, 980–1 000 nodos) y sólo detecta ~19 % de los errores. Memoria no
+  igualada (dos redes). Tabla en README 3.5.
+
 ## Pendiente
 
 1. A 64×64: más semillas y/o modelo mayor o más pasos para bajar la varianza entre entrenamientos

@@ -288,6 +288,34 @@ Mejor temperatura de cada caso, Fréchet (semilla 0 · semilla 1):
 
 Comparativa visual de 3.3 en `results/analysis/comparativa_quickdraw.png`.
 
+## 3.5 Corrector aparte sobre `grow`, a igual cómputo (noviembre de 2026)
+
+El generador (`qd_grow_ft_ctrl*`, el mejor `grow`) no se toca. Una segunda red del mismo tamaño
+(`experiments.train_corrector`, 5 000 pasos, parte de los pesos del generador) mira cada nivel ya
+decidido, antes de crear los hijos, y cambia los nodos a los que da menos de 0,5 de probabilidad.
+Cada pasada del corrector se cuenta como una evaluación más. Controles de igual coste: el mismo
+`grow` con más pasos por nivel (cómputo al generar) y `qd_grow_ft_ctrl2*`, el mismo `grow` con otros
+5 000 pasos de entrenamiento (cómputo de entrenamiento). Fréchet medio de 3 semillas de muestreo,
+mejor temperatura de cada caso (0,7–0,8 sin corrector; 0,9 con él):
+
+| Tokens/muestra | `grow` solo (s0 · s1) | `grow` + 5 000 pasos (s0 · s1) | `grow` + corrector (s0 · s1) |
+|---|---|---|---|
+| ~10 300 | 52,4 · 68,0 | — | **44,5 · 58,8** |
+| ~12 000 | 52,0 · 69,7 | 50,3 · 63,6 | **43,8 · 57,7** |
+| ~13 700 | 51,0 · 67,3 | 51,1 · 63,5 | **45,6 · 54,4** |
+| ~17 000 | 48,1 · 65,1 | — | **45,3 · 53,7** |
+
+- **El corrector gana a igual cómputo en las dos semillas y en todos los presupuestos**: 6–8 puntos
+  en la semilla 0 y 9–13 en la 1. Con ~10 300 tokens ya supera a `grow` solo con ~17 000.
+- También gana a gastar esos 5 000 pasos en seguir entrenando el generador.
+- Los intervalos por semilla de muestreo se separan en la semilla 1 (52–56 frente a 63–64) y se
+  rozan en la 0 (40–47 frente a 45–54). Son 2 generadores y 2000 muestras: efecto consistente, no grande.
+- Cambia 15–25 nodos por imagen, de los que sólo 3–5 son uniones; **no poda** (980–1 000 nodos frente
+  a ~970). Es revisión del nivel en curso más que unión. Permite además subir la temperatura (0,9).
+- El corrector detecta sólo ~19 % de los errores de entrenamiento (1 % de falsa alarma): hay margen.
+  Con umbral 0,3 casi no actúa y no mejora.
+- No igualado: la memoria (dos redes, el doble de parámetros). Falta comparar con un `grow` mayor.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión

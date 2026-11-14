@@ -66,7 +66,8 @@ def _pick_remask(cand, conf, n, mode, generator):
 
 @torch.no_grad()
 def sample(model, num, steps_per_level=8, label=None, temperature=1.0, device="cpu", generator=None,
-           remask=0.0, remask_rounds=0, remask_mode="conf", stats=None):
+           remask=0.0, remask_rounds=0, remask_mode="conf", stats=None,
+           corrector=None, corr_thr=0.5, corr_rounds=1):
     """Genera `num` árboles. Devuelve (lista de tensores (L_i, 4), nº de evaluaciones de red, tokens procesados por muestra).
 
     Reenmascarado (al estilo ReMDM, sin reentrenar): un nodo ya decidido del nivel en curso
@@ -76,7 +77,11 @@ def sample(model, num, steps_per_level=8, label=None, temperature=1.0, device="c
       remask_rounds  rondas extra de corrección al acabar cada nivel (una evaluación cada una);
                      con 0, el reenmascarado ocurre dentro de los pasos normales del nivel
       remask_mode    'conf' (prioriza los decididos con menos confianza) o 'uniform'
-    stats: dict opcional que se rellena con los contadores de reenmascarado."""
+    stats: dict opcional que se rellena con los contadores de reenmascarado.
+
+    Corrector (experiments.train_corrector): red aparte que, al acabar cada nivel y antes de crear
+    los hijos, mira el nivel ya decidido y cambia los nodos a cuyo estado da menos de `corr_thr`
+    por su estado más probable. Cada ronda cuesta una evaluación, que se cuenta en evals y tokens."""
     depth = model.depth
     trees = [torch.tensor([[0, 0, 0, MASK]], dtype=torch.long) for _ in range(num)]
     confs = [torch.zeros(1) for _ in range(num)]                    # prob. con la que se decidió cada nodo
@@ -147,6 +152,29 @@ def sample(model, num, steps_per_level=8, label=None, temperature=1.0, device="c
             probs = predict(active)
             for j, i in enumerate(active):
                 reveal(i, probs[j], (trees[i][:, 3] == MASK).nonzero()[:, 0])
+        for _ in range(corr_rounds if corrector is not None else 0):
+            n = max(len(t) for t in trees)
+            batch = torch.zeros(num, n, 4, dtype=torch.long)
+            batch[:, :, 3] = PAD
+            for i, t in enumerate(trees):
+                batch[i, :len(t)] = t
+            batch = batch.to(device)
+            lab = None if label is None else label.to(device)
+            p = F.softmax(corrector(batch[..., 3], batch[..., 0], batch[..., 1], batch[..., 2],
+                                    batch[..., 3] == PAD, lab).float(), -1).cpu()
+            evals += 1
+            tokens += sum(len(t) for t in trees)
+            if l == depth:
+                p[..., SPLIT] = 0
+            for i, t in enumerate(trees):
+                at = (t[:, 0] == l).nonzero()[:, 0]
+                pi = p[i, at]
+                old = t[at, 3]
+                new = torch.where(pi.gather(1, old[:, None])[:, 0] < corr_thr, pi.argmax(-1), old)
+                cnt["cambios"] += int((new != old).sum())
+                cnt["uniones"] += int(((old == SPLIT) & (new != SPLIT)).sum())
+                cnt["subdivisiones_tardias"] += int(((old != SPLIT) & (new == SPLIT)).sum())
+                t[at, 3] = new
         if l < depth:  # los nodos SPLIT de este nivel crean hijos enmascarados
             for i, t in enumerate(trees):
                 parents = t[(t[:, 0] == l) & (t[:, 3] == SPLIT)]

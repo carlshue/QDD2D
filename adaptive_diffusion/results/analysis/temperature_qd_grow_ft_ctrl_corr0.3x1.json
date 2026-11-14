@@ -1,0 +1,53 @@
+[
+ {
+  "metodo": "grow",
+  "resolve": false,
+  "steps": 7,
+  "temperatura": 0.9,
+  "acc_min": 88.65,
+  "acc_max": 89.0,
+  "frechet_min": 59.63,
+  "frechet_max": 67.63,
+  "frechet_media": 63.57,
+  "cambios": 3.39,
+  "uniones": 0.46,
+  "subdivisiones_tardias": 0.6,
+  "evals": 46.0,
+  "tokens_por_muestra": 13344,
+  "nodos_final": 955.9
+ },
+ {
+  "metodo": "grow",
+  "resolve": false,
+  "steps": 7,
+  "temperatura": 0.8,
+  "acc_min": 91.2,
+  "acc_max": 91.55,
+  "frechet_min": 48.41,
+  "frechet_max": 50.01,
+  "frechet_media": 49.4,
+  "cambios": 2.52,
+  "uniones": 0.34,
+  "subdivisiones_tardias": 0.44,
+  "evals": 46.0,
+  "tokens_por_muestra": 13577,
+  "nodos_final": 973.3
+ },
+ {
+  "metodo": "grow",
+  "resolve": false,
+  "steps": 7,
+  "temperatura": 0.7,
+  "acc_min": 93.05,
+  "acc_max": 94.35,
+  "frechet_min": 50.73,
+  "frechet_max": 59.23,
+  "frechet_media": 54.45,
+  "cambios": 1.91,
+  "uniones": 0.23,
+  "subdivisiones_tardias": 0.3,
+  "evals": 46.0,
+  "tokens_por_muestra": 13859,
+  "nodos_final": 995.6
+ }
+]

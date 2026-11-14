@@ -31,7 +31,8 @@ def load_model(path, device):
 
 @torch.no_grad()
 def generate(model, meta, labels, device, steps=None, temperature=1.0, batch=250, resolve_fresh=False,
-             revise=1.0, revise_thr=0.5, trace=None, remask=0.0, remask_rounds=0, remask_mode="conf"):
+             revise=1.0, revise_thr=0.5, trace=None, remask=0.0, remask_rounds=0, remask_mode="conf",
+             corrector=None, corr_thr=0.5, corr_rounds=1):
     """Genera una imagen por etiqueta. Devuelve (imgs uint8 (N,S,S), estadísticas medias).
     resolve_fresh sólo afecta a 'edit'; revise y revise_thr, a 'grow_merge'; remask*, a 'grow'.
     trace: models.heat.HeatTrace opcional (sólo 'edit' y 'grow_merge')."""
@@ -59,7 +60,8 @@ def generate(model, meta, labels, device, steps=None, temperature=1.0, batch=250
                 from structures.binary_quadtree import levels_to_image, tokens_to_levels
                 rs = {}
                 trees, evals, tok = sample(model, len(lab), steps or 8, lab, temperature, device, remask=remask,
-                                           remask_rounds=remask_rounds, remask_mode=remask_mode, stats=rs)
+                                           remask_rounds=remask_rounds, remask_mode=remask_mode, stats=rs,
+                                           corrector=corrector, corr_thr=corr_thr, corr_rounds=corr_rounds)
                 out = np.stack([levels_to_image([lv[None] for lv in tokens_to_levels(t.numpy(), meta["depth"])])[0]
                                 for t in trees])
                 sizes = [len(t) for t in trees]
