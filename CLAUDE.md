@@ -152,6 +152,12 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
   Entrena en ~40 min. 8 pasos por nivel bastan. Tabla en README 3.7.
 - `tile` de 8 capas (`qd_tile_L8_ft*`): Fréchet 22,2 · 24,9 a T 0,9 con ~3 170 tokens ×2 (acierto
   94–95 %). Óptimo de temperatura estrecho. Entrena en ~1 h 10 min + 8 min. Es la mejor marca.
+- **Novedad (revisado 2026-11-14): el token de ocupación NO es nuevo.** OctSqueeze (2020, compresión
+  LiDAR) ya usa el símbolo de 8 bits por nodo con softmax de 256; Uni-3DAR (arXiv 2503.16278) lo usa
+  para generar ("2-level subtree compression", ~8× menos tokens), pero autorregresivo causal. No
+  verificados (sólo resumen de búsqueda): OAT/OctreeGPT 2504.02817, Nexus 2607.13563, MeshOctave
+  2609.38985 (difusión discreta enmascarada por escala con ocupación de 8 bits, en mallas). Lo que
+  queda por diferenciar es la combinación con desenmascarado paralelo por nivel y el estudio de diccionario.
 - Plan acordado: (1b) hecho; (2) atención por ventanas a 64×64 (la
   atención es global y no escala; OctGPT usa ventanas en orden Morton con dilatación); (3) subir a
   128×128 o 3D. El usuario quiere estudiar además el tamaño de diccionario (bloques 2×2 → 4×4).
