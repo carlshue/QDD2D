@@ -1,0 +1,56 @@
+preparando los datos...
+partiendo de results/qd_grow_s1/model.pt (parámetros nuevos: 0)
+método grow | dispositivo NVIDIA GeForce RTX 5070 Ti | precisión mixta sí | 0.83 M parámetros | 60000 árboles
+paso      1 | pérdida 0.3171 | 1s
+paso     10 | pérdida 0.2792 | 4s
+paso    100 | pérdida 0.2718 | 34s | faltan ~28 min
+paso    200 | pérdida 0.2731 | 67s | faltan ~27 min
+paso    300 | pérdida 0.2700 | 100s | faltan ~26 min
+paso    400 | pérdida 0.2715 | 134s | faltan ~26 min
+paso    500 | pérdida 0.2728 | 169s | faltan ~25 min
+paso    600 | pérdida 0.2709 | 203s | faltan ~25 min
+paso    700 | pérdida 0.2691 | 235s | faltan ~24 min
+paso    800 | pérdida 0.2702 | 269s | faltan ~24 min
+paso    900 | pérdida 0.2710 | 302s | faltan ~23 min
+paso   1000 | pérdida 0.2714 | 336s | faltan ~22 min
+paso   1100 | pérdida 0.2709 | 369s | faltan ~22 min
+paso   1200 | pérdida 0.2739 | 402s | faltan ~21 min
+paso   1300 | pérdida 0.2698 | 435s | faltan ~21 min
+paso   1400 | pérdida 0.2712 | 469s | faltan ~20 min
+paso   1500 | pérdida 0.2704 | 501s | faltan ~19 min
+paso   1600 | pérdida 0.2735 | 534s | faltan ~19 min
+paso   1700 | pérdida 0.2703 | 568s | faltan ~18 min
+paso   1800 | pérdida 0.2710 | 601s | faltan ~18 min
+paso   1900 | pérdida 0.2680 | 634s | faltan ~17 min
+paso   2000 | pérdida 0.2692 | 667s | faltan ~17 min
+paso   2100 | pérdida 0.2695 | 701s | faltan ~16 min
+paso   2200 | pérdida 0.2666 | 734s | faltan ~16 min
+paso   2300 | pérdida 0.2731 | 767s | faltan ~15 min
+paso   2400 | pérdida 0.2721 | 800s | faltan ~14 min
+paso   2500 | pérdida 0.2685 | 833s | faltan ~14 min
+paso   2600 | pérdida 0.2691 | 866s | faltan ~13 min
+paso   2700 | pérdida 0.2692 | 900s | faltan ~13 min
+paso   2800 | pérdida 0.2708 | 934s | faltan ~12 min
+paso   2900 | pérdida 0.2698 | 967s | faltan ~12 min
+paso   3000 | pérdida 0.2712 | 1000s | faltan ~11 min
+paso   3100 | pérdida 0.2715 | 1034s | faltan ~11 min
+paso   3200 | pérdida 0.2668 | 1066s | faltan ~10 min
+paso   3300 | pérdida 0.2703 | 1099s | faltan ~9 min
+paso   3400 | pérdida 0.2680 | 1132s | faltan ~9 min
+paso   3500 | pérdida 0.2718 | 1166s | faltan ~8 min
+paso   3600 | pérdida 0.2724 | 1197s | faltan ~8 min
+paso   3700 | pérdida 0.2706 | 1230s | faltan ~7 min
+paso   3800 | pérdida 0.2681 | 1263s | faltan ~7 min
+paso   3900 | pérdida 0.2715 | 1296s | faltan ~6 min
+paso   4000 | pérdida 0.2704 | 1330s | faltan ~6 min
+paso   4100 | pérdida 0.2700 | 1363s | faltan ~5 min
+paso   4200 | pérdida 0.2691 | 1397s | faltan ~4 min
+paso   4300 | pérdida 0.2718 | 1429s | faltan ~4 min
+paso   4400 | pérdida 0.2692 | 1462s | faltan ~3 min
+paso   4500 | pérdida 0.2702 | 1496s | faltan ~3 min
+paso   4600 | pérdida 0.2670 | 1529s | faltan ~2 min
+paso   4700 | pérdida 0.2697 | 1561s | faltan ~2 min
+paso   4800 | pérdida 0.2670 | 1595s | faltan ~1 min
+paso   4900 | pérdida 0.2665 | 1628s | faltan ~1 min
+paso   5000 | pérdida 0.2695 | 1661s | faltan ~0 min
+guardado results/qd_grow_ft_ctrl_s1/model.pt

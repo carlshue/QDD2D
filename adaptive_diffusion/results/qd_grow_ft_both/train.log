@@ -1,0 +1,57 @@
+preparando los datos...
+crecimiento con unión: nodos decididos estropeados con 'both' (ruido hasta 15%)
+partiendo de results/qd_grow/model.pt (parámetros nuevos: 4)
+método grow_merge | dispositivo NVIDIA RTX PRO 4500 Blackwell | precisión mixta sí | 0.86 M parámetros | 60000 árboles
+paso      1 | pérdida 0.3766 | 1s
+paso     10 | pérdida 0.2164 | 2s
+paso    100 | pérdida 0.1986 | nodos ruidosos corregidos 12.7% | 22s | faltan ~18 min
+paso    200 | pérdida 0.1741 | nodos ruidosos corregidos 21.8% | 44s | faltan ~18 min
+paso    300 | pérdida 0.1699 | nodos ruidosos corregidos 28.5% | 67s | faltan ~18 min
+paso    400 | pérdida 0.1639 | nodos ruidosos corregidos 33.0% | 90s | faltan ~17 min
+paso    500 | pérdida 0.1595 | nodos ruidosos corregidos 36.5% | 113s | faltan ~17 min
+paso    600 | pérdida 0.1575 | nodos ruidosos corregidos 38.8% | 135s | faltan ~16 min
+paso    700 | pérdida 0.1550 | nodos ruidosos corregidos 41.0% | 157s | faltan ~16 min
+paso    800 | pérdida 0.1553 | nodos ruidosos corregidos 42.0% | 179s | faltan ~16 min
+paso    900 | pérdida 0.1521 | nodos ruidosos corregidos 43.2% | 200s | faltan ~15 min
+paso   1000 | pérdida 0.1524 | nodos ruidosos corregidos 44.4% | 223s | faltan ~15 min
+paso   1100 | pérdida 0.1508 | nodos ruidosos corregidos 45.8% | 245s | faltan ~14 min
+paso   1200 | pérdida 0.1501 | nodos ruidosos corregidos 46.8% | 266s | faltan ~14 min
+paso   1300 | pérdida 0.1507 | nodos ruidosos corregidos 47.0% | 289s | faltan ~14 min
+paso   1400 | pérdida 0.1491 | nodos ruidosos corregidos 48.2% | 311s | faltan ~13 min
+paso   1500 | pérdida 0.1479 | nodos ruidosos corregidos 49.1% | 333s | faltan ~13 min
+paso   1600 | pérdida 0.1464 | nodos ruidosos corregidos 50.0% | 355s | faltan ~13 min
+paso   1700 | pérdida 0.1461 | nodos ruidosos corregidos 50.3% | 377s | faltan ~12 min
+paso   1800 | pérdida 0.1456 | nodos ruidosos corregidos 51.0% | 400s | faltan ~12 min
+paso   1900 | pérdida 0.1468 | nodos ruidosos corregidos 50.8% | 422s | faltan ~11 min
+paso   2000 | pérdida 0.1446 | nodos ruidosos corregidos 51.4% | 444s | faltan ~11 min
+paso   2100 | pérdida 0.1445 | nodos ruidosos corregidos 51.9% | 467s | faltan ~11 min
+paso   2200 | pérdida 0.1457 | nodos ruidosos corregidos 52.2% | 489s | faltan ~10 min
+paso   2300 | pérdida 0.1429 | nodos ruidosos corregidos 53.2% | 512s | faltan ~10 min
+paso   2400 | pérdida 0.1429 | nodos ruidosos corregidos 53.0% | 534s | faltan ~10 min
+paso   2500 | pérdida 0.1411 | nodos ruidosos corregidos 54.0% | 556s | faltan ~9 min
+paso   2600 | pérdida 0.1440 | nodos ruidosos corregidos 53.8% | 578s | faltan ~9 min
+paso   2700 | pérdida 0.1425 | nodos ruidosos corregidos 53.9% | 600s | faltan ~9 min
+paso   2800 | pérdida 0.1445 | nodos ruidosos corregidos 54.1% | 623s | faltan ~8 min
+paso   2900 | pérdida 0.1423 | nodos ruidosos corregidos 54.3% | 645s | faltan ~8 min
+paso   3000 | pérdida 0.1426 | nodos ruidosos corregidos 54.6% | 667s | faltan ~7 min
+paso   3100 | pérdida 0.1415 | nodos ruidosos corregidos 54.9% | 689s | faltan ~7 min
+paso   3200 | pérdida 0.1421 | nodos ruidosos corregidos 54.9% | 712s | faltan ~7 min
+paso   3300 | pérdida 0.1398 | nodos ruidosos corregidos 55.1% | 734s | faltan ~6 min
+paso   3400 | pérdida 0.1405 | nodos ruidosos corregidos 55.7% | 756s | faltan ~6 min
+paso   3500 | pérdida 0.1406 | nodos ruidosos corregidos 55.7% | 778s | faltan ~6 min
+paso   3600 | pérdida 0.1409 | nodos ruidosos corregidos 55.8% | 800s | faltan ~5 min
+paso   3700 | pérdida 0.1399 | nodos ruidosos corregidos 56.3% | 823s | faltan ~5 min
+paso   3800 | pérdida 0.1388 | nodos ruidosos corregidos 56.6% | 845s | faltan ~4 min
+paso   3900 | pérdida 0.1425 | nodos ruidosos corregidos 56.3% | 867s | faltan ~4 min
+paso   4000 | pérdida 0.1399 | nodos ruidosos corregidos 56.6% | 889s | faltan ~4 min
+paso   4100 | pérdida 0.1387 | nodos ruidosos corregidos 57.0% | 911s | faltan ~3 min
+paso   4200 | pérdida 0.1393 | nodos ruidosos corregidos 56.7% | 934s | faltan ~3 min
+paso   4300 | pérdida 0.1398 | nodos ruidosos corregidos 56.7% | 956s | faltan ~3 min
+paso   4400 | pérdida 0.1386 | nodos ruidosos corregidos 57.0% | 978s | faltan ~2 min
+paso   4500 | pérdida 0.1378 | nodos ruidosos corregidos 57.2% | 1000s | faltan ~2 min
+paso   4600 | pérdida 0.1395 | nodos ruidosos corregidos 56.7% | 1023s | faltan ~1 min
+paso   4700 | pérdida 0.1391 | nodos ruidosos corregidos 57.4% | 1046s | faltan ~1 min
+paso   4800 | pérdida 0.1392 | nodos ruidosos corregidos 57.3% | 1068s | faltan ~1 min
+paso   4900 | pérdida 0.1395 | nodos ruidosos corregidos 57.2% | 1089s | faltan ~0 min
+paso   5000 | pérdida 0.1387 | nodos ruidosos corregidos 57.7% | 1111s | faltan ~0 min
+guardado results/qd_grow_ft_both/model.pt

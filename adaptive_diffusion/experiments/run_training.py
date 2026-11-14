@@ -53,6 +53,9 @@ def main():
     p.add_argument("--workers", type=int, default=0,
                    help="sólo grow: procesos que preparan los lotes (0 = en el proceso principal, como antes)")
     p.add_argument("--save_every", type=int, default=2000)
+    p.add_argument("--init", default=None,
+                   help="checkpoint del que partir (afinado). Puede ser de otro método: un 'grow' no tiene "
+                        "entrada de tiempo, así que esa parte arranca en cero y no altera la red de partida")
     args = p.parse_args()
 
     torch.manual_seed(args.seed)
@@ -126,6 +129,14 @@ def main():
 
     model = QuadtreeTransformer(depth=depth, dim=args.dim, layers=args.layers, heads=args.heads,
                                 use_time=(args.method != "grow")).to(device)
+    if args.init:
+        ck = torch.load(args.init, map_location=device)
+        missing, unexpected = model.load_state_dict(ck["model"], strict=False)
+        assert not unexpected and all(k.startswith("time_mlp") for k in missing), (missing, unexpected)
+        if missing:      # la entrada de tiempo es nueva: su salida empieza en cero
+            torch.nn.init.zeros_(model.time_mlp[-1].weight)
+            torch.nn.init.zeros_(model.time_mlp[-1].bias)
+        print(f"partiendo de {args.init} (parámetros nuevos: {len(missing)})", flush=True)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
     name = torch.cuda.get_device_name(device) if device.startswith("cuda") else device

@@ -263,6 +263,31 @@ Lectura:
 - **Todo queda lejos del suelo** (≥78 frente a 15–18). El modelo es el mismo de MNIST y los árboles
   son 4,4 veces mayores: probablemente falta capacidad o entrenamiento, y eso infla la varianza.
 
+## 3.4 Añadir la unión a un `grow` ya entrenado (noviembre de 2026)
+
+Prueba que quita de en medio la varianza entre entrenamientos: se parte del **mismo** `grow` de 3.3
+(`--init`) y se entrenan 5 000 pasos más a lr 3e-4, de dos maneras: como `grow_merge` con errores
+propios + ruido (`qd_grow_ft_both*`) o como `grow` normal (control, `qd_grow_ft_ctrl*`).
+Mejor temperatura de cada caso, Fréchet (semilla 0 · semilla 1):
+
+| Caso | Fréchet | Acierto | Tokens/muestra | Nodos |
+|---|---|---|---|---|
+| `grow` de partida | 78–81 · 126–139 | 92,5–92,9 · 86,8–87,9 % | 14 100 · 15 700 | 1 024 · 1 158 |
+| control: 5 000 pasos más de `grow` | **50–53 · 65–71** | 91,5–91,7 · 91,1–92,6 % | 13 500 · 14 100 | 969 · 1 028 |
+| afinado con unión, unión encendida | 92–97 · 115–119 | 86,9–88,0 · 88,0–89,2 % | 16 800 · 17 100 | 951 · 952 |
+| afinado con unión, unión apagada | 111–125 · 129–138 | 90,3–92,0 · 91,6–92,2 % | 13 900 · 13 900 | 988 · 994 |
+
+- **La unión pierde en las dos semillas, con el mismo punto de partida**: 92–97 y 115–119 frente a
+  50–53 y 65–71 del control, y además gasta un 20–25 % más de tokens.
+- La revisión sigue ayudando dentro de su propio modelo (encendida frente a apagada) y actúa ~20 veces
+  por imagen, pero aprender a revisar le cuesta al generador más de lo que la revisión devuelve. La
+  detección de errores propios se queda en 53–56 % (68–71 % entrenando desde cero).
+- **Hallazgo lateral:** 5 000 pasos más con lr menor bajan `grow` de 78–81 a 50–53 y de 126–139 a
+  65–71, y reducen la distancia entre semillas. El entrenamiento usa lr constante 1e-3 sin decaimiento;
+  buena parte de la varianza de 3.3 venía de ahí.
+
+Comparativa visual de 3.3 en `results/analysis/comparativa_quickdraw.png`.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión

@@ -100,6 +100,18 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 - `edit` queda descartado a 64×64. Todo está lejos del suelo: el modelo (dim 128, 4 capas) parece
   quedarse corto. Tablas en README 3.3.
 
+### Unión añadida a un `grow` ya entrenado (2026-11-14)
+
+- `run_training --init ckpt` afina desde otro checkpoint (también de `grow` a `grow_merge`).
+- Mismo `grow` de partida + 5 000 pasos a lr 3e-4: control `grow` 50–53 · 65–71 de Fréchet; afinado con
+  unión (`both`) 92–97 · 115–119 con un 20–25 % más de tokens. **La unión pierde en las dos semillas.**
+- La unión mejora a su propio modelo, pero entrenar para revisar empeora al generador más de lo que
+  la revisión recupera. Tal como está planteada, la hipótesis principal no se sostiene en 2D.
+- Lateral: el lr constante 1e-3 dejaba los modelos a medio converger; bajar el lr al final da la
+  mayor mejora vista (78–81 → 50–53). Usar decaimiento de lr en cualquier entrenamiento futuro.
+- Los modelos tienen 0,86 M de parámetros (dim 128, 4 capas).
+- Tabla en README 3.4; comparativa visual en `results/analysis/comparativa_quickdraw.png`.
+
 ## Pendiente
 
 1. A 64×64: más semillas y/o modelo mayor o más pasos para bajar la varianza entre entrenamientos
