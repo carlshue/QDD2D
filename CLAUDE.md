@@ -158,6 +158,16 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
   verificados (sólo resumen de búsqueda): OAT/OctreeGPT 2504.02817, Nexus 2607.13563, MeshOctave
   2609.38985 (difusión discreta enmascarada por escala con ocupación de 8 bits, en mallas). Lo que
   queda por diferenciar es la combinación con desenmascarado paralelo por nivel y el estudio de diccionario.
+- **JoVox (arXiv 2611.10690, 7 nov 2026, KAUST) cubre casi toda nuestra línea en 3D** (leído): un token
+  por celda ocupada, códigos de ocupación de 256 valores, predicción a dos niveles (4×4×4 como 8
+  códigos de 256), flujo discreto enmascarado **conjunto en todos los niveles** (no nivel a nivel) y
+  reenmascarado de los códigos más antiguos, que puede deshacer decisiones gruesas. Atención global
+  con RoPE, 1,5 mil M de parámetros, 64³ (256³ en apéndice). Leídos también: OAT (código estructural de
+  8 bits + VQ, autorregresivo BFS), Nexus (patrón de 8 como un token, difusión continua por niveles),
+  MeshOctave (difusión enmascarada por escala, sobre mallas).
+- Hueco que queda (2026-11-14): nadie de estos usa atención local ni recalcula sólo lo que cambia
+  (JoVox reevalúa todos los tokens en ~80 pasos con atención global), y ninguno compara la revisión a
+  igual cómputo. Para un paper haría falta 3D (ShapeNet 64³ como mínimo) con esas líneas base.
 - Plan acordado: (1b) hecho; (2) atención por ventanas a 64×64 (la
   atención es global y no escala; OctGPT usa ventanas en orden Morton con dilatación); (3) subir a
   128×128 o 3D. El usuario quiere estudiar además el tamaño de diccionario (bloques 2×2 → 4×4).
