@@ -22,7 +22,8 @@ def load_model(path, device):
     a = ck["args"]
     method = a.get("method", "grow")
     model = QuadtreeTransformer(depth=ck["depth"], dim=a["dim"], layers=a["layers"], heads=a["heads"],
-                                use_time=(method in ("edit", "grow_merge"))).to(device)
+                                use_time=(method in ("edit", "grow_merge")),
+                                **({"num_states": 16} if method == "tile" else {})).to(device)
     model.load_state_dict(ck["model"])
     model.eval()
     return model, {"method": method, "depth": ck["depth"], "prior": ck.get("prior"), "args": a,
@@ -55,6 +56,13 @@ def generate(model, meta, labels, device, steps=None, temperature=1.0, batch=250
                 out, st = sample(model, pyr, len(lab), steps or 8, lab, temperature, revise=revise,
                                  revise_thr=revise_thr, trace=trace)
                 out = out.cpu().numpy().astype(np.uint8)
+            elif meta["method"] == "tile":
+                from models.tile_grow import sample, tokens_to_image
+                trees, evals, tok = sample(model, len(lab), steps or 8, lab, temperature, device)
+                out = np.stack([tokens_to_image(t, meta["depth"]).numpy() for t in trees])
+                sizes = [len(t) for t in trees]
+                st = {"evals": evals, "tokens_por_muestra": tok, "nodos_final": float(np.mean(sizes)),
+                      "nodos_max": int(max(sizes))}
             else:
                 from models.adaptive_diffusion import sample
                 from structures.binary_quadtree import levels_to_image, tokens_to_levels

@@ -28,7 +28,7 @@ def save(model, args, depth, prior=None):
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--method", choices=["grow", "grow_merge", "edit"], default="grow")
+    p.add_argument("--method", choices=["grow", "grow_merge", "edit", "tile"], default="grow")
     p.add_argument("--prior", choices=["uniform", "level", "cell"], default="cell",
                    help="árbol aleatorio de partida (sólo --method edit)")
     p.add_argument("--prior_p", type=float, default=0.667, help="prob. de subdividir del ruido 'uniform'")
@@ -51,7 +51,7 @@ def main():
     p.add_argument("--device", default="auto", help="auto, cuda, cuda:0, mps o cpu")
     p.add_argument("--no_amp", action="store_true", help="desactivar precisión mixta en GPU")
     p.add_argument("--workers", type=int, default=0,
-                   help="sólo grow: procesos que preparan los lotes (0 = en el proceso principal, como antes)")
+                   help="grow y tile: procesos que preparan los lotes (0 = en el proceso principal, como antes)")
     p.add_argument("--save_every", type=int, default=2000)
     p.add_argument("--accum", type=int, default=1,
                    help="acumular gradiente de N lotes por paso (lote efectivo = batch × N); para gráficas con poca memoria")
@@ -109,7 +109,12 @@ def main():
         from torch.utils.data import DataLoader
         from data.quadtree_dataset import QuadtreeMNIST
         from models.adaptive_diffusion import loss_fn as grow_loss, make_training_batch
-        data = QuadtreeMNIST(train=True, limit=args.limit, dataset=args.dataset)
+        if args.method == "tile":      # un token por nodo subdividido, con el patrón de sus hijos
+            from models.tile_grow import TileDataset, make_training_batch
+            data = TileDataset(train=True, limit=args.limit, dataset=args.dataset)
+            print(f"tile: {sum(len(t) for t in data.tokens) / len(data):.0f} tokens de media por árbol", flush=True)
+        else:
+            data = QuadtreeMNIST(train=True, limit=args.limit, dataset=args.dataset)
         depth, n_data = data.depth, len(data)
         if args.workers > 0:     # construir el lote (tapar nodos, rellenar) en procesos aparte
             def collate(b):
@@ -130,7 +135,8 @@ def main():
                     yield {k: v.to(device) for k, v in b.items()}, labels.to(device)
 
     model = QuadtreeTransformer(depth=depth, dim=args.dim, layers=args.layers, heads=args.heads,
-                                use_time=(args.method != "grow")).to(device)
+                                use_time=(args.method not in ("grow", "tile")),
+                                **({"num_states": 16} if args.method == "tile" else {})).to(device)
     if args.init:
         ck = torch.load(args.init, map_location=device)
         missing, unexpected = model.load_state_dict(ck["model"], strict=False)

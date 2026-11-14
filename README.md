@@ -340,6 +340,30 @@ tokens × capas/4 («tokens equivalentes»). Fréchet medio, mejor temperatura, 
   niveles). Siguiente línea: un token por nodo subdividido con el patrón de ocupación de sus hijos
   (15 símbolos), que deja la secuencia en ~241 tokens.
 
+## 3.7 Tokens de ocupación (`tile`): un token por nodo subdividido (noviembre de 2026)
+
+`models/tile_grow.py`, `--method tile`. Sólo tienen token los nodos con contenido, y su valor es qué
+hijos tienen contenido (4 bits, 15 patrones útiles); los hijos vacíos quedan implícitos. Sin pérdida.
+La secuencia baja de ~963 a **~246 tokens** por dibujo. Mismo modelo (4 capas, 0,86 M) y misma receta
+que `grow` (30 000 pasos a 1e-3 + 5 000 a 3e-4), 2 semillas. Fréchet medio (semilla 0 · semilla 1):
+
+| Caso | Temp. | Fréchet | Acierto | Tokens/muestra (× coste por token) |
+|---|---|---|---|---|
+| `grow` 4 capas, 8 pasos | 0,8 | 51,0 · 67,3 | 91–92 · 89–90 % | 13 500 |
+| `grow` 4 capas + corrector | 0,9 | 45,6 · 54,4 | 91–93 · 89–91 % | 13 700 |
+| `grow` 8 capas, 8 pasos | 0,8 | 32,2 · 38,0 | 93–94 · 93–94 % | 13 450 (×2) |
+| **`tile` 4 capas, 8 pasos** | 0,9 | **32,3 · 33,4** | 93–94 · 92–93 % | **3 170** |
+| `tile` 4 capas, 16 pasos | 0,9 | 32,2 · 32,3 | 92–93 · 93–94 % | 5 130 |
+| `tile` 4 capas, 32 pasos | 0,9 | 30,0 · 35,1 | 93 · 92–93 % | 8 200 |
+
+- **`tile` iguala al `grow` del doble de tamaño con ~8 veces menos cómputo** (3 170 tokens de una red
+  de 4 capas frente a 13 450 de una de 8), y mejora al `grow` del mismo tamaño de 51 · 67 a 32 · 33.
+- La diferencia entre semillas de entrenamiento casi desaparece (32,3 frente a 33,4).
+- Entrena 3,5 veces más rápido: ~37–40 min los 30 000 pasos frente a ~130.
+- Más pasos por nivel no mejoran: 8 bastan.
+- Es sensible a la temperatura: 0,9 es el óptimo; a 0,7 sube a ~68.
+- Los árboles salen algo cortos: 235–237 tokens frente a 246 reales.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión
