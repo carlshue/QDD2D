@@ -247,7 +247,31 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
   datos + métrica; (3) omnitree con atención global; (4) atención local en ambos; (5) zonas calientes y
   temperatura por nivel al muestrear. Empezar a 32³. Tabla final a igual cómputo, ~8 entrenamientos
   (2 árboles × 2 atenciones × 2 semillas). En la sesión en la nube no hay GPU: el usuario lanza los entrenamientos.
-- Sin decidir: ABO (7 953 modelos, accesible desde la nube) o ShapeNet (si el usuario lo tiene en local).
+- Datos decididos (2026-11-15): ABO; el usuario no tiene ShapeNet. Él lanza los entrenamientos en su
+  máquina y sube `results/` para analizarlos.
+
+### Banco 3D: octree frente a omnitree sobre ABO (código hecho 2026-11-15, sin entrenar aún)
+
+- Datos: `data/abo.py`, `load_abo(res, train)`. `data/abo/abo32.npz` (7 953 formas, ocupación de superficie,
+  1,7 MB) está en el repo; se reconstruye con `python -m data.abo --res 32` (baja sólo la geometría por
+  rangos HTTP). Licencia de ABO: CC BY-NC 4.0. Por defecto se excluyen alfombras, cuadros y espejos (losas):
+  quedan 5 790 de entrenamiento y 638 de prueba (reparto fijo por id), 10 clases (`CLASSES`).
+- Árboles: `structures/boxtree.py`, `build_tokens(vox, kind)` con `kind` = `tile` (octree de un byte por nodo,
+  el de la bibliografía), `oct` (octree con hojas llenas) u `omni`. Token de 10 columnas: profundidad, nivel e
+  índice por eje, corte, ocupación, lleno. Sin pérdida (`tokens_to_voxels`), `check_tree` valida un árbol.
+- Modelo: `models/box_transformer.py` (`BoxTransformer`): el mismo para los tres árboles; cabezas en cadena
+  p(corte)·p(ocupación | corte)·p(lleno | corte, ocupación) con los valores imposibles excluidos. `tile` sólo
+  usa la de ocupación. 1,03 M de parámetros con dim 128 y 4 capas.
+- Generación nivel a nivel (nivel = profundidad en el árbol): `models/box_grow.py`. Aumento: 4 giros de 90°
+  sobre la vertical × espejo (8 variantes; los árboles se calculan una vez y se guardan en `data/abo/cache/`).
+- Scripts: `experiments/train_box.py` (decaimiento coseno de lr, pérdida en bits por token y por pieza,
+  pérdida en prueba cada 1 000 pasos), `experiments/eval_box.py` (clasificador 3D, Fréchet, 1-NNA, cobertura,
+  MMD con distancia 1 − IoU, medida de copia del entrenamiento, coste) y `experiments/run_box.py` (todo en uno).
+  `--max_tile_tokens 2048` filtra por el tamaño del octree `tile` para que todos usen las mismas formas (98 %).
+- Probado sólo en CPU: tests (`tests/test_boxtree.py`, `tests/test_box_model.py`) y 400 pasos con 300 formas,
+  donde la pérdida baja en `tile` y `omni`. **No se ha ejecutado en GPU**: memoria y tiempos sin medir.
+  Si `tile` no cabe en memoria, usar `--batch 32 --accum 4` (mismo lote efectivo que 64 × 2).
+- Pendiente del plan: atención local para cajas (fase 4), zonas calientes y temperatura por nivel (fase 5), 64³.
 
 ## Pendiente
 
@@ -268,6 +292,15 @@ python -m experiments.run_local --name grow_merge --method grow_merge
 python -m experiments.evaluate --ckpt results/edit_cell/model.pt --resolve
 python -m experiments.heat_analysis --ckpt results/edit_cell/model.pt --resolve
 python -m experiments.sampling_analysis
+```
+
+Banco 3D (octree frente a omnitree, ABO a 32³):
+
+```bash
+python -m pytest -q tests/test_boxtree.py tests/test_box_model.py
+python -m experiments.run_box --name prueba3d --tree omni --steps 300 --limit 500 --num 200   # prueba rápida
+python -m experiments.run_box --name box_omni_s0 --tree omni --seed 0
+python -m experiments.run_box --name box_tile_s0 --tree tile --seed 0
 ```
 
 - Resultados en `adaptive_diffusion/results/<nombre>/`; análisis en `results/analysis/`.

@@ -37,23 +37,35 @@ def tile_token_count(vox):
     return total
 
 
+def _build_job(job):
+    vox, k, kind = job
+    return build_tokens(augment(vox, k), kind)
+
+
 class BoxDataset(Dataset):
     """Árboles de un conjunto de rejillas, con sus variantes giradas, como un solo array de tokens."""
 
-    def __init__(self, vox, labels, kind, aug=1, cache=None, chunk=64, log=print):
+    def __init__(self, vox, labels, kind, aug=1, cache=None, chunk=64, log=print, workers=0):
         self.depth = int(vox.shape[1]).bit_length() - 1
         self.kind = kind
         if cache and os.path.exists(cache):
             d = np.load(cache)
             self.tokens, self.offsets, self.labels = d["tokens"], d["offsets"], d["labels"]
             return
-        toks, labs = [], []
-        for k in range(aug):
-            for i in range(0, len(vox), chunk):
-                toks += build_tokens(augment(vox[i:i + chunk], k), kind)
-                if log and i % (chunk * 20) == 0:
-                    log(f"  árboles '{kind}': variante {k + 1}/{aug}, {i}/{len(vox)}")
-            labs.append(labels)
+        jobs = [(vox[i:i + chunk], k, kind) for k in range(aug) for i in range(0, len(vox), chunk)]
+        toks, labs = [], [labels] * aug
+        if workers > 1 and len(jobs) > 1:                    # los árboles se calculan en varios procesos
+            from multiprocessing import Pool
+            with Pool(workers) as pool:
+                for done, part in enumerate(pool.imap(_build_job, jobs), 1):
+                    toks += part
+                    if log and done % 100 == 0:
+                        log(f"  árboles '{kind}': {done}/{len(jobs)} bloques")
+        else:
+            for done, job in enumerate(jobs, 1):
+                toks += _build_job(job)
+                if log and done % 100 == 0:
+                    log(f"  árboles '{kind}': {done}/{len(jobs)} bloques")
         self.offsets = np.concatenate([[0], np.cumsum([len(t) for t in toks])])
         self.tokens = np.concatenate(toks).astype(np.int16)
         self.labels = np.concatenate(labs).astype(np.int64)
