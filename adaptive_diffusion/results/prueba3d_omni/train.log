@@ -1,0 +1,10 @@
+preparando los árboles (la primera vez tarda; luego se leen de data/abo/cache)...
+árbol 'omni' a 32³: 4000 árboles (500 formas × 8), 349 tokens de media, máx. 1674
+dispositivo NVIDIA GeForce RTX 5070 Ti | precisión mixta sí | 1.03 M parámetros | lote 64 × 2
+paso      1 | pérdida 11.643 bits/token | 1s | faltan ~4 min
+paso     10 | pérdida 10.557 bits/token | 1s | faltan ~1 min
+paso    100 | pérdida 8.797 bits/token (corte 1.77, ocupacion 5.26, lleno 1.77) | 7s | faltan ~0 min
+paso    200 | pérdida 6.515 bits/token (corte 1.12, ocupacion 4.39, lleno 1.00) | 12s | faltan ~0 min
+paso    300 | pérdida 5.838 bits/token (corte 0.91, ocupacion 4.14, lleno 0.78) | 19s | faltan ~0 min
+paso    300 | pérdida en prueba 6.024 bits/token | 9076 tokens por lote
+guardado results/prueba3d_omni/model.pt

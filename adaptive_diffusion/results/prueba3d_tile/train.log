@@ -1,0 +1,17 @@
+preparando los árboles (la primera vez tarda; luego se leen de data/abo/cache)...
+  árboles 'tile': 100/712 bloques
+  árboles 'tile': 200/712 bloques
+  árboles 'tile': 300/712 bloques
+  árboles 'tile': 400/712 bloques
+  árboles 'tile': 500/712 bloques
+  árboles 'tile': 600/712 bloques
+  árboles 'tile': 700/712 bloques
+árbol 'tile' a 32³: 45392 árboles (5674 formas × 8), 852 tokens de media, máx. 2046
+dispositivo NVIDIA GeForce RTX 5070 Ti | precisión mixta sí | 1.03 M parámetros | lote 64 × 2
+paso      1 | pérdida 8.115 bits/token | 1s | faltan ~3 min
+paso     10 | pérdida 8.087 bits/token | 2s | faltan ~1 min
+paso    100 | pérdida 7.073 bits/token (ocupacion 7.07) | 15s | faltan ~1 min
+paso    200 | pérdida 5.163 bits/token (ocupacion 5.16) | 29s | faltan ~0 min
+paso    300 | pérdida 4.626 bits/token (ocupacion 4.63) | 44s | faltan ~0 min
+paso    300 | pérdida en prueba 3.982 bits/token | 13884 tokens por lote
+guardado results/prueba3d_tile/model.pt

@@ -1,0 +1,226 @@
+preparando los árboles (la primera vez tarda; luego se leen de data/abo/cache)...
+árbol 'omni' a 32³: 45392 árboles (5674 formas × 8), 434 tokens de media, máx. 1674
+dispositivo NVIDIA GeForce RTX 5070 Ti | precisión mixta sí | 1.03 M parámetros | lote 64 × 2
+paso      1 | pérdida 10.221 bits/token | 1s | faltan ~235 min
+paso     10 | pérdida 10.181 bits/token | 2s | faltan ~57 min
+paso    100 | pérdida 8.750 bits/token (corte 1.53, ocupacion 5.40, lleno 1.82) | 12s | faltan ~38 min
+paso    200 | pérdida 6.614 bits/token (corte 1.04, ocupacion 4.60, lleno 0.98) | 23s | faltan ~38 min
+paso    300 | pérdida 6.067 bits/token (corte 0.89, ocupacion 4.35, lleno 0.82) | 36s | faltan ~39 min
+paso    400 | pérdida 5.831 bits/token (corte 0.82, ocupacion 4.26, lleno 0.76) | 48s | faltan ~39 min
+paso    500 | pérdida 5.585 bits/token (corte 0.76, ocupacion 4.12, lleno 0.71) | 60s | faltan ~39 min
+paso    600 | pérdida 5.368 bits/token (corte 0.70, ocupacion 3.99, lleno 0.68) | 71s | faltan ~38 min
+paso    700 | pérdida 5.047 bits/token (corte 0.63, ocupacion 3.78, lleno 0.64) | 83s | faltan ~38 min
+paso    800 | pérdida 4.823 bits/token (corte 0.59, ocupacion 3.58, lleno 0.65) | 94s | faltan ~38 min
+paso    900 | pérdida 4.518 bits/token (corte 0.58, ocupacion 3.33, lleno 0.61) | 106s | faltan ~37 min
+paso   1000 | pérdida 4.271 bits/token (corte 0.55, ocupacion 3.15, lleno 0.57) | 117s | faltan ~37 min
+paso   1000 | pérdida en prueba 4.202 bits/token | 11726 tokens por lote
+paso   1100 | pérdida 4.126 bits/token (corte 0.54, ocupacion 3.02, lleno 0.57) | 131s | faltan ~38 min
+paso   1200 | pérdida 3.960 bits/token (corte 0.54, ocupacion 2.85, lleno 0.57) | 142s | faltan ~37 min
+paso   1300 | pérdida 3.842 bits/token (corte 0.54, ocupacion 2.75, lleno 0.56) | 154s | faltan ~37 min
+paso   1400 | pérdida 3.760 bits/token (corte 0.53, ocupacion 2.69, lleno 0.54) | 166s | faltan ~37 min
+paso   1500 | pérdida 3.657 bits/token (corte 0.53, ocupacion 2.61, lleno 0.53) | 178s | faltan ~37 min
+paso   1600 | pérdida 3.626 bits/token (corte 0.52, ocupacion 2.57, lleno 0.54) | 190s | faltan ~36 min
+paso   1700 | pérdida 3.462 bits/token (corte 0.51, ocupacion 2.42, lleno 0.53) | 202s | faltan ~36 min
+paso   1800 | pérdida 3.372 bits/token (corte 0.50, ocupacion 2.37, lleno 0.50) | 212s | faltan ~36 min
+paso   1900 | pérdida 3.350 bits/token (corte 0.50, ocupacion 2.33, lleno 0.51) | 223s | faltan ~35 min
+paso   2000 | pérdida 3.321 bits/token (corte 0.49, ocupacion 2.33, lleno 0.50) | 236s | faltan ~35 min
+paso   2000 | pérdida en prueba 3.247 bits/token | 11695 tokens por lote
+paso   2100 | pérdida 3.253 bits/token (corte 0.50, ocupacion 2.26, lleno 0.50) | 250s | faltan ~35 min
+paso   2200 | pérdida 3.202 bits/token (corte 0.50, ocupacion 2.20, lleno 0.50) | 262s | faltan ~35 min
+paso   2300 | pérdida 3.148 bits/token (corte 0.49, ocupacion 2.16, lleno 0.49) | 274s | faltan ~35 min
+paso   2400 | pérdida 3.115 bits/token (corte 0.51, ocupacion 2.12, lleno 0.49) | 285s | faltan ~35 min
+paso   2500 | pérdida 3.169 bits/token (corte 0.48, ocupacion 2.19, lleno 0.49) | 298s | faltan ~35 min
+paso   2600 | pérdida 2.970 bits/token (corte 0.49, ocupacion 2.02, lleno 0.47) | 309s | faltan ~34 min
+paso   2700 | pérdida 3.061 bits/token (corte 0.48, ocupacion 2.10, lleno 0.49) | 321s | faltan ~34 min
+paso   2800 | pérdida 2.971 bits/token (corte 0.49, ocupacion 2.02, lleno 0.47) | 332s | faltan ~34 min
+paso   2900 | pérdida 3.016 bits/token (corte 0.47, ocupacion 2.07, lleno 0.48) | 344s | faltan ~34 min
+paso   3000 | pérdida 2.915 bits/token (corte 0.47, ocupacion 1.99, lleno 0.45) | 356s | faltan ~34 min
+paso   3000 | pérdida en prueba 2.931 bits/token | 11743 tokens por lote
+paso   3100 | pérdida 2.916 bits/token (corte 0.48, ocupacion 1.97, lleno 0.47) | 370s | faltan ~34 min
+paso   3200 | pérdida 2.891 bits/token (corte 0.48, ocupacion 1.94, lleno 0.46) | 382s | faltan ~33 min
+paso   3300 | pérdida 2.890 bits/token (corte 0.46, ocupacion 1.96, lleno 0.47) | 393s | faltan ~33 min
+paso   3400 | pérdida 2.817 bits/token (corte 0.47, ocupacion 1.89, lleno 0.45) | 405s | faltan ~33 min
+paso   3500 | pérdida 2.801 bits/token (corte 0.45, ocupacion 1.89, lleno 0.46) | 416s | faltan ~33 min
+paso   3600 | pérdida 2.798 bits/token (corte 0.47, ocupacion 1.88, lleno 0.44) | 428s | faltan ~32 min
+paso   3700 | pérdida 2.768 bits/token (corte 0.47, ocupacion 1.86, lleno 0.44) | 439s | faltan ~32 min
+paso   3800 | pérdida 2.752 bits/token (corte 0.46, ocupacion 1.85, lleno 0.44) | 450s | faltan ~32 min
+paso   3900 | pérdida 2.828 bits/token (corte 0.46, ocupacion 1.92, lleno 0.45) | 463s | faltan ~32 min
+paso   4000 | pérdida 2.737 bits/token (corte 0.46, ocupacion 1.84, lleno 0.44) | 474s | faltan ~32 min
+paso   4000 | pérdida en prueba 2.695 bits/token | 11707 tokens por lote
+paso   4100 | pérdida 2.704 bits/token (corte 0.45, ocupacion 1.82, lleno 0.44) | 489s | faltan ~32 min
+paso   4200 | pérdida 2.686 bits/token (corte 0.45, ocupacion 1.81, lleno 0.43) | 501s | faltan ~31 min
+paso   4300 | pérdida 2.644 bits/token (corte 0.44, ocupacion 1.78, lleno 0.42) | 512s | faltan ~31 min
+paso   4400 | pérdida 2.656 bits/token (corte 0.45, ocupacion 1.78, lleno 0.43) | 524s | faltan ~31 min
+paso   4500 | pérdida 2.685 bits/token (corte 0.45, ocupacion 1.80, lleno 0.43) | 535s | faltan ~31 min
+paso   4600 | pérdida 2.636 bits/token (corte 0.45, ocupacion 1.76, lleno 0.43) | 546s | faltan ~30 min
+paso   4700 | pérdida 2.661 bits/token (corte 0.44, ocupacion 1.79, lleno 0.43) | 558s | faltan ~30 min
+paso   4800 | pérdida 2.575 bits/token (corte 0.45, ocupacion 1.71, lleno 0.42) | 570s | faltan ~30 min
+paso   4900 | pérdida 2.606 bits/token (corte 0.44, ocupacion 1.75, lleno 0.41) | 582s | faltan ~30 min
+paso   5000 | pérdida 2.547 bits/token (corte 0.45, ocupacion 1.70, lleno 0.40) | 593s | faltan ~30 min
+paso   5000 | pérdida en prueba 2.545 bits/token | 11711 tokens por lote
+paso   5100 | pérdida 2.617 bits/token (corte 0.44, ocupacion 1.74, lleno 0.43) | 608s | faltan ~30 min
+paso   5200 | pérdida 2.578 bits/token (corte 0.44, ocupacion 1.72, lleno 0.42) | 620s | faltan ~29 min
+paso   5300 | pérdida 2.527 bits/token (corte 0.43, ocupacion 1.69, lleno 0.40) | 631s | faltan ~29 min
+paso   5400 | pérdida 2.513 bits/token (corte 0.44, ocupacion 1.67, lleno 0.41) | 642s | faltan ~29 min
+paso   5500 | pérdida 2.546 bits/token (corte 0.44, ocupacion 1.69, lleno 0.41) | 654s | faltan ~29 min
+paso   5600 | pérdida 2.526 bits/token (corte 0.44, ocupacion 1.67, lleno 0.42) | 665s | faltan ~29 min
+paso   5700 | pérdida 2.560 bits/token (corte 0.43, ocupacion 1.73, lleno 0.40) | 677s | faltan ~28 min
+paso   5800 | pérdida 2.547 bits/token (corte 0.44, ocupacion 1.69, lleno 0.42) | 690s | faltan ~28 min
+paso   5900 | pérdida 2.453 bits/token (corte 0.42, ocupacion 1.64, lleno 0.40) | 700s | faltan ~28 min
+paso   6000 | pérdida 2.459 bits/token (corte 0.44, ocupacion 1.62, lleno 0.40) | 713s | faltan ~28 min
+paso   6000 | pérdida en prueba 2.458 bits/token | 11706 tokens por lote
+paso   6100 | pérdida 2.487 bits/token (corte 0.42, ocupacion 1.66, lleno 0.41) | 728s | faltan ~28 min
+paso   6200 | pérdida 2.455 bits/token (corte 0.42, ocupacion 1.63, lleno 0.40) | 740s | faltan ~27 min
+paso   6300 | pérdida 2.422 bits/token (corte 0.43, ocupacion 1.60, lleno 0.39) | 750s | faltan ~27 min
+paso   6400 | pérdida 2.451 bits/token (corte 0.44, ocupacion 1.61, lleno 0.40) | 762s | faltan ~27 min
+paso   6500 | pérdida 2.437 bits/token (corte 0.42, ocupacion 1.62, lleno 0.40) | 773s | faltan ~27 min
+paso   6600 | pérdida 2.398 bits/token (corte 0.43, ocupacion 1.58, lleno 0.39) | 785s | faltan ~27 min
+paso   6700 | pérdida 2.447 bits/token (corte 0.41, ocupacion 1.63, lleno 0.41) | 797s | faltan ~26 min
+paso   6800 | pérdida 2.358 bits/token (corte 0.43, ocupacion 1.55, lleno 0.38) | 808s | faltan ~26 min
+paso   6900 | pérdida 2.350 bits/token (corte 0.43, ocupacion 1.54, lleno 0.38) | 819s | faltan ~26 min
+paso   7000 | pérdida 2.416 bits/token (corte 0.42, ocupacion 1.60, lleno 0.40) | 831s | faltan ~26 min
+paso   7000 | pérdida en prueba 2.367 bits/token | 11709 tokens por lote
+paso   7100 | pérdida 2.418 bits/token (corte 0.41, ocupacion 1.61, lleno 0.39) | 846s | faltan ~26 min
+paso   7200 | pérdida 2.356 bits/token (corte 0.42, ocupacion 1.55, lleno 0.39) | 857s | faltan ~25 min
+paso   7300 | pérdida 2.399 bits/token (corte 0.41, ocupacion 1.59, lleno 0.40) | 869s | faltan ~25 min
+paso   7400 | pérdida 2.369 bits/token (corte 0.42, ocupacion 1.55, lleno 0.39) | 881s | faltan ~25 min
+paso   7500 | pérdida 2.333 bits/token (corte 0.42, ocupacion 1.53, lleno 0.39) | 892s | faltan ~25 min
+paso   7600 | pérdida 2.345 bits/token (corte 0.41, ocupacion 1.54, lleno 0.39) | 904s | faltan ~25 min
+paso   7700 | pérdida 2.347 bits/token (corte 0.42, ocupacion 1.54, lleno 0.39) | 916s | faltan ~24 min
+paso   7800 | pérdida 2.301 bits/token (corte 0.41, ocupacion 1.52, lleno 0.37) | 928s | faltan ~24 min
+paso   7900 | pérdida 2.298 bits/token (corte 0.42, ocupacion 1.50, lleno 0.38) | 939s | faltan ~24 min
+paso   8000 | pérdida 2.312 bits/token (corte 0.42, ocupacion 1.52, lleno 0.38) | 951s | faltan ~24 min
+paso   8000 | pérdida en prueba 2.325 bits/token | 11718 tokens por lote
+paso   8100 | pérdida 2.345 bits/token (corte 0.41, ocupacion 1.55, lleno 0.38) | 966s | faltan ~24 min
+paso   8200 | pérdida 2.321 bits/token (corte 0.42, ocupacion 1.52, lleno 0.38) | 978s | faltan ~23 min
+paso   8300 | pérdida 2.251 bits/token (corte 0.42, ocupacion 1.46, lleno 0.37) | 989s | faltan ~23 min
+paso   8400 | pérdida 2.297 bits/token (corte 0.41, ocupacion 1.50, lleno 0.38) | 1001s | faltan ~23 min
+paso   8500 | pérdida 2.287 bits/token (corte 0.40, ocupacion 1.52, lleno 0.37) | 1013s | faltan ~23 min
+paso   8600 | pérdida 2.298 bits/token (corte 0.41, ocupacion 1.50, lleno 0.39) | 1024s | faltan ~23 min
+paso   8700 | pérdida 2.294 bits/token (corte 0.41, ocupacion 1.50, lleno 0.38) | 1036s | faltan ~22 min
+paso   8800 | pérdida 2.266 bits/token (corte 0.41, ocupacion 1.48, lleno 0.37) | 1048s | faltan ~22 min
+paso   8900 | pérdida 2.190 bits/token (corte 0.40, ocupacion 1.44, lleno 0.36) | 1059s | faltan ~22 min
+paso   9000 | pérdida 2.239 bits/token (corte 0.40, ocupacion 1.46, lleno 0.37) | 1071s | faltan ~22 min
+paso   9000 | pérdida en prueba 2.281 bits/token | 11723 tokens por lote
+paso   9100 | pérdida 2.269 bits/token (corte 0.40, ocupacion 1.50, lleno 0.37) | 1086s | faltan ~22 min
+paso   9200 | pérdida 2.257 bits/token (corte 0.40, ocupacion 1.48, lleno 0.37) | 1097s | faltan ~21 min
+paso   9300 | pérdida 2.266 bits/token (corte 0.41, ocupacion 1.49, lleno 0.37) | 1109s | faltan ~21 min
+paso   9400 | pérdida 2.247 bits/token (corte 0.40, ocupacion 1.48, lleno 0.37) | 1120s | faltan ~21 min
+paso   9500 | pérdida 2.255 bits/token (corte 0.39, ocupacion 1.48, lleno 0.38) | 1133s | faltan ~21 min
+paso   9600 | pérdida 2.107 bits/token (corte 0.40, ocupacion 1.37, lleno 0.34) | 1143s | faltan ~21 min
+paso   9700 | pérdida 2.171 bits/token (corte 0.41, ocupacion 1.40, lleno 0.36) | 1155s | faltan ~20 min
+paso   9800 | pérdida 2.268 bits/token (corte 0.40, ocupacion 1.50, lleno 0.37) | 1168s | faltan ~20 min
+paso   9900 | pérdida 2.197 bits/token (corte 0.41, ocupacion 1.42, lleno 0.37) | 1179s | faltan ~20 min
+paso  10000 | pérdida 2.248 bits/token (corte 0.40, ocupacion 1.47, lleno 0.38) | 1191s | faltan ~20 min
+paso  10000 | pérdida en prueba 2.219 bits/token | 11723 tokens por lote
+paso  10100 | pérdida 2.160 bits/token (corte 0.40, ocupacion 1.41, lleno 0.35) | 1205s | faltan ~20 min
+paso  10200 | pérdida 2.205 bits/token (corte 0.41, ocupacion 1.42, lleno 0.37) | 1217s | faltan ~19 min
+paso  10300 | pérdida 2.207 bits/token (corte 0.40, ocupacion 1.43, lleno 0.38) | 1228s | faltan ~19 min
+paso  10400 | pérdida 2.165 bits/token (corte 0.40, ocupacion 1.40, lleno 0.36) | 1239s | faltan ~19 min
+paso  10500 | pérdida 2.179 bits/token (corte 0.39, ocupacion 1.43, lleno 0.36) | 1252s | faltan ~19 min
+paso  10600 | pérdida 2.175 bits/token (corte 0.40, ocupacion 1.41, lleno 0.36) | 1263s | faltan ~19 min
+paso  10700 | pérdida 2.224 bits/token (corte 0.40, ocupacion 1.45, lleno 0.37) | 1276s | faltan ~18 min
+paso  10800 | pérdida 2.205 bits/token (corte 0.41, ocupacion 1.44, lleno 0.36) | 1287s | faltan ~18 min
+paso  10900 | pérdida 2.111 bits/token (corte 0.40, ocupacion 1.36, lleno 0.35) | 1298s | faltan ~18 min
+paso  11000 | pérdida 2.153 bits/token (corte 0.39, ocupacion 1.41, lleno 0.35) | 1310s | faltan ~18 min
+paso  11000 | pérdida en prueba 2.185 bits/token | 11716 tokens por lote
+paso  11100 | pérdida 2.186 bits/token (corte 0.40, ocupacion 1.42, lleno 0.36) | 1325s | faltan ~18 min
+paso  11200 | pérdida 2.130 bits/token (corte 0.39, ocupacion 1.39, lleno 0.35) | 1336s | faltan ~17 min
+paso  11300 | pérdida 2.116 bits/token (corte 0.40, ocupacion 1.37, lleno 0.35) | 1347s | faltan ~17 min
+paso  11400 | pérdida 2.093 bits/token (corte 0.38, ocupacion 1.37, lleno 0.34) | 1359s | faltan ~17 min
+paso  11500 | pérdida 2.163 bits/token (corte 0.41, ocupacion 1.39, lleno 0.36) | 1371s | faltan ~17 min
+paso  11600 | pérdida 2.173 bits/token (corte 0.39, ocupacion 1.42, lleno 0.36) | 1384s | faltan ~17 min
+paso  11700 | pérdida 2.130 bits/token (corte 0.40, ocupacion 1.38, lleno 0.35) | 1395s | faltan ~16 min
+paso  11800 | pérdida 2.122 bits/token (corte 0.40, ocupacion 1.37, lleno 0.36) | 1407s | faltan ~16 min
+paso  11900 | pérdida 2.162 bits/token (corte 0.39, ocupacion 1.42, lleno 0.36) | 1419s | faltan ~16 min
+paso  12000 | pérdida 2.148 bits/token (corte 0.38, ocupacion 1.41, lleno 0.35) | 1431s | faltan ~16 min
+paso  12000 | pérdida en prueba 2.166 bits/token | 11716 tokens por lote
+paso  12100 | pérdida 2.135 bits/token (corte 0.40, ocupacion 1.38, lleno 0.36) | 1445s | faltan ~16 min
+paso  12200 | pérdida 2.081 bits/token (corte 0.38, ocupacion 1.34, lleno 0.36) | 1457s | faltan ~16 min
+paso  12300 | pérdida 2.095 bits/token (corte 0.39, ocupacion 1.35, lleno 0.35) | 1468s | faltan ~15 min
+paso  12400 | pérdida 2.121 bits/token (corte 0.39, ocupacion 1.38, lleno 0.35) | 1480s | faltan ~15 min
+paso  12500 | pérdida 2.115 bits/token (corte 0.38, ocupacion 1.38, lleno 0.35) | 1492s | faltan ~15 min
+paso  12600 | pérdida 2.093 bits/token (corte 0.38, ocupacion 1.36, lleno 0.35) | 1503s | faltan ~15 min
+paso  12700 | pérdida 2.033 bits/token (corte 0.39, ocupacion 1.31, lleno 0.34) | 1514s | faltan ~15 min
+paso  12800 | pérdida 2.085 bits/token (corte 0.39, ocupacion 1.34, lleno 0.35) | 1526s | faltan ~14 min
+paso  12900 | pérdida 2.091 bits/token (corte 0.39, ocupacion 1.35, lleno 0.35) | 1537s | faltan ~14 min
+paso  13000 | pérdida 2.065 bits/token (corte 0.38, ocupacion 1.35, lleno 0.34) | 1549s | faltan ~14 min
+paso  13000 | pérdida en prueba 2.132 bits/token | 11708 tokens por lote
+paso  13100 | pérdida 2.093 bits/token (corte 0.37, ocupacion 1.36, lleno 0.36) | 1563s | faltan ~14 min
+paso  13200 | pérdida 2.117 bits/token (corte 0.38, ocupacion 1.38, lleno 0.36) | 1576s | faltan ~14 min
+paso  13300 | pérdida 2.037 bits/token (corte 0.38, ocupacion 1.31, lleno 0.34) | 1587s | faltan ~13 min
+paso  13400 | pérdida 2.046 bits/token (corte 0.39, ocupacion 1.32, lleno 0.34) | 1598s | faltan ~13 min
+paso  13500 | pérdida 2.071 bits/token (corte 0.38, ocupacion 1.35, lleno 0.34) | 1610s | faltan ~13 min
+paso  13600 | pérdida 2.043 bits/token (corte 0.39, ocupacion 1.31, lleno 0.34) | 1621s | faltan ~13 min
+paso  13700 | pérdida 2.048 bits/token (corte 0.39, ocupacion 1.31, lleno 0.35) | 1633s | faltan ~13 min
+paso  13800 | pérdida 2.045 bits/token (corte 0.38, ocupacion 1.33, lleno 0.34) | 1644s | faltan ~12 min
+paso  13900 | pérdida 2.079 bits/token (corte 0.39, ocupacion 1.33, lleno 0.36) | 1656s | faltan ~12 min
+paso  14000 | pérdida 2.012 bits/token (corte 0.38, ocupacion 1.30, lleno 0.34) | 1667s | faltan ~12 min
+paso  14000 | pérdida en prueba 2.095 bits/token | 11706 tokens por lote
+paso  14100 | pérdida 2.095 bits/token (corte 0.38, ocupacion 1.38, lleno 0.34) | 1681s | faltan ~12 min
+paso  14200 | pérdida 2.072 bits/token (corte 0.38, ocupacion 1.35, lleno 0.34) | 1693s | faltan ~12 min
+paso  14300 | pérdida 2.011 bits/token (corte 0.38, ocupacion 1.29, lleno 0.34) | 1705s | faltan ~11 min
+paso  14400 | pérdida 2.022 bits/token (corte 0.37, ocupacion 1.32, lleno 0.33) | 1718s | faltan ~11 min
+paso  14500 | pérdida 2.006 bits/token (corte 0.39, ocupacion 1.28, lleno 0.34) | 1731s | faltan ~11 min
+paso  14600 | pérdida 2.047 bits/token (corte 0.38, ocupacion 1.32, lleno 0.35) | 1745s | faltan ~11 min
+paso  14700 | pérdida 2.072 bits/token (corte 0.39, ocupacion 1.34, lleno 0.34) | 1759s | faltan ~11 min
+paso  14800 | pérdida 2.014 bits/token (corte 0.38, ocupacion 1.30, lleno 0.33) | 1771s | faltan ~10 min
+paso  14900 | pérdida 1.986 bits/token (corte 0.37, ocupacion 1.28, lleno 0.33) | 1784s | faltan ~10 min
+paso  15000 | pérdida 1.996 bits/token (corte 0.38, ocupacion 1.29, lleno 0.33) | 1798s | faltan ~10 min
+paso  15000 | pérdida en prueba 2.081 bits/token | 11710 tokens por lote
+paso  15100 | pérdida 2.021 bits/token (corte 0.38, ocupacion 1.30, lleno 0.34) | 1813s | faltan ~10 min
+paso  15200 | pérdida 2.036 bits/token (corte 0.37, ocupacion 1.32, lleno 0.35) | 1828s | faltan ~10 min
+paso  15300 | pérdida 2.053 bits/token (corte 0.38, ocupacion 1.32, lleno 0.34) | 1839s | faltan ~9 min
+paso  15400 | pérdida 1.992 bits/token (corte 0.38, ocupacion 1.29, lleno 0.33) | 1851s | faltan ~9 min
+paso  15500 | pérdida 1.985 bits/token (corte 0.37, ocupacion 1.27, lleno 0.34) | 1864s | faltan ~9 min
+paso  15600 | pérdida 2.012 bits/token (corte 0.38, ocupacion 1.30, lleno 0.33) | 1878s | faltan ~9 min
+paso  15700 | pérdida 2.005 bits/token (corte 0.38, ocupacion 1.29, lleno 0.33) | 1891s | faltan ~9 min
+paso  15800 | pérdida 2.022 bits/token (corte 0.37, ocupacion 1.32, lleno 0.33) | 1905s | faltan ~8 min
+paso  15900 | pérdida 1.947 bits/token (corte 0.37, ocupacion 1.25, lleno 0.33) | 1917s | faltan ~8 min
+paso  16000 | pérdida 2.022 bits/token (corte 0.37, ocupacion 1.30, lleno 0.34) | 1931s | faltan ~8 min
+paso  16000 | pérdida en prueba 2.066 bits/token | 11710 tokens por lote
+paso  16100 | pérdida 1.970 bits/token (corte 0.38, ocupacion 1.25, lleno 0.34) | 1948s | faltan ~8 min
+paso  16200 | pérdida 2.014 bits/token (corte 0.36, ocupacion 1.31, lleno 0.34) | 1961s | faltan ~8 min
+paso  16300 | pérdida 1.982 bits/token (corte 0.37, ocupacion 1.28, lleno 0.33) | 1972s | faltan ~7 min
+paso  16400 | pérdida 2.044 bits/token (corte 0.36, ocupacion 1.33, lleno 0.35) | 1986s | faltan ~7 min
+paso  16500 | pérdida 1.950 bits/token (corte 0.37, ocupacion 1.25, lleno 0.33) | 1999s | faltan ~7 min
+paso  16600 | pérdida 1.952 bits/token (corte 0.37, ocupacion 1.25, lleno 0.33) | 2011s | faltan ~7 min
+paso  16700 | pérdida 1.956 bits/token (corte 0.36, ocupacion 1.27, lleno 0.32) | 2024s | faltan ~7 min
+paso  16800 | pérdida 1.992 bits/token (corte 0.38, ocupacion 1.27, lleno 0.34) | 2038s | faltan ~6 min
+paso  16900 | pérdida 1.992 bits/token (corte 0.37, ocupacion 1.28, lleno 0.34) | 2052s | faltan ~6 min
+paso  17000 | pérdida 1.931 bits/token (corte 0.37, ocupacion 1.24, lleno 0.32) | 2065s | faltan ~6 min
+paso  17000 | pérdida en prueba 2.049 bits/token | 11711 tokens por lote
+paso  17100 | pérdida 1.979 bits/token (corte 0.37, ocupacion 1.27, lleno 0.34) | 2082s | faltan ~6 min
+paso  17200 | pérdida 1.982 bits/token (corte 0.37, ocupacion 1.27, lleno 0.34) | 2093s | faltan ~6 min
+paso  17300 | pérdida 1.923 bits/token (corte 0.37, ocupacion 1.24, lleno 0.31) | 2101s | faltan ~5 min
+paso  17400 | pérdida 1.994 bits/token (corte 0.38, ocupacion 1.28, lleno 0.34) | 2109s | faltan ~5 min
+paso  17500 | pérdida 1.960 bits/token (corte 0.36, ocupacion 1.27, lleno 0.33) | 2117s | faltan ~5 min
+paso  17600 | pérdida 2.002 bits/token (corte 0.38, ocupacion 1.29, lleno 0.33) | 2125s | faltan ~5 min
+paso  17700 | pérdida 1.975 bits/token (corte 0.38, ocupacion 1.26, lleno 0.33) | 2132s | faltan ~5 min
+paso  17800 | pérdida 1.986 bits/token (corte 0.37, ocupacion 1.27, lleno 0.34) | 2140s | faltan ~4 min
+paso  17900 | pérdida 1.941 bits/token (corte 0.38, ocupacion 1.24, lleno 0.33) | 2148s | faltan ~4 min
+paso  18000 | pérdida 1.986 bits/token (corte 0.37, ocupacion 1.28, lleno 0.33) | 2156s | faltan ~4 min
+paso  18000 | pérdida en prueba 2.024 bits/token | 11708 tokens por lote
+paso  18100 | pérdida 1.899 bits/token (corte 0.37, ocupacion 1.21, lleno 0.32) | 2164s | faltan ~4 min
+paso  18200 | pérdida 1.912 bits/token (corte 0.37, ocupacion 1.22, lleno 0.32) | 2171s | faltan ~4 min
+paso  18300 | pérdida 1.970 bits/token (corte 0.37, ocupacion 1.26, lleno 0.34) | 2179s | faltan ~3 min
+paso  18400 | pérdida 1.998 bits/token (corte 0.37, ocupacion 1.30, lleno 0.33) | 2188s | faltan ~3 min
+paso  18500 | pérdida 1.982 bits/token (corte 0.36, ocupacion 1.28, lleno 0.34) | 2195s | faltan ~3 min
+paso  18600 | pérdida 2.002 bits/token (corte 0.38, ocupacion 1.29, lleno 0.33) | 2204s | faltan ~3 min
+paso  18700 | pérdida 1.925 bits/token (corte 0.38, ocupacion 1.22, lleno 0.33) | 2211s | faltan ~3 min
+paso  18800 | pérdida 1.952 bits/token (corte 0.37, ocupacion 1.26, lleno 0.32) | 2219s | faltan ~2 min
+paso  18900 | pérdida 1.975 bits/token (corte 0.37, ocupacion 1.28, lleno 0.33) | 2227s | faltan ~2 min
+paso  19000 | pérdida 1.914 bits/token (corte 0.36, ocupacion 1.23, lleno 0.32) | 2234s | faltan ~2 min
+paso  19000 | pérdida en prueba 2.020 bits/token | 11713 tokens por lote
+paso  19100 | pérdida 1.964 bits/token (corte 0.37, ocupacion 1.26, lleno 0.33) | 2242s | faltan ~2 min
+paso  19200 | pérdida 1.939 bits/token (corte 0.37, ocupacion 1.23, lleno 0.33) | 2250s | faltan ~2 min
+paso  19300 | pérdida 1.996 bits/token (corte 0.37, ocupacion 1.30, lleno 0.33) | 2258s | faltan ~1 min
+paso  19400 | pérdida 1.905 bits/token (corte 0.36, ocupacion 1.23, lleno 0.32) | 2266s | faltan ~1 min
+paso  19500 | pérdida 1.974 bits/token (corte 0.38, ocupacion 1.27, lleno 0.33) | 2273s | faltan ~1 min
+paso  19600 | pérdida 1.973 bits/token (corte 0.37, ocupacion 1.27, lleno 0.33) | 2281s | faltan ~1 min
+paso  19700 | pérdida 1.928 bits/token (corte 0.37, ocupacion 1.24, lleno 0.32) | 2289s | faltan ~1 min
+paso  19800 | pérdida 1.984 bits/token (corte 0.37, ocupacion 1.27, lleno 0.33) | 2296s | faltan ~0 min
+paso  19900 | pérdida 1.945 bits/token (corte 0.36, ocupacion 1.25, lleno 0.33) | 2304s | faltan ~0 min
+paso  20000 | pérdida 1.937 bits/token (corte 0.36, ocupacion 1.25, lleno 0.32) | 2312s | faltan ~0 min
+paso  20000 | pérdida en prueba 2.016 bits/token | 11711 tokens por lote
+guardado results/box_omni_s1/model.pt
