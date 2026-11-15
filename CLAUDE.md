@@ -253,7 +253,7 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 ### Banco 3D: octree frente a omnitree sobre ABO (código hecho 2026-11-15, sin entrenar aún)
 
 - Datos: `data/abo.py`, `load_abo(res, train)`. `data/abo/abo32.npz` (7 953 formas, ocupación de superficie,
-  1,7 MB) está en el repo; se reconstruye con `python -m data.abo --res 32` (baja sólo la geometría por
+  1,7 MB) y `abo64.npz` están en el repo; se reconstruyen con `python -m data.abo --res 32` (baja sólo la geometría por
   rangos HTTP). Licencia de ABO: CC BY-NC 4.0. Por defecto se excluyen alfombras, cuadros y espejos (losas):
   quedan 5 790 de entrenamiento y 638 de prueba (reparto fijo por id), 10 clases (`CLASSES`).
 - Árboles: `structures/boxtree.py`, `build_tokens(vox, kind)` con `kind` = `tile` (octree de un byte por nodo,
