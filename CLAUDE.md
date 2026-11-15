@@ -233,7 +233,21 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
   por forma bajan menos, −43 %; vocabulario de miles de símbolos (habría que factorizar la predicción).
 - Depende de la alineación con los ejes: girando 30° sobre la vertical (100 formas, sin planas) el ahorro
   baja de −64 % a −38 %.
-- Pendiente si se sigue: repetir a 128³, definir el token factorizado y decidir cómo generar con ~10 niveles.
+- **Fase 1 del plan 3D (2026-11-15), token en tres piezas** (corte de 7 símbolos · qué hijos tienen contenido,
+  ≤255 · cuáles de esos son cajas llenas, ≤256), frente al octree de un byte por nodo (`tile` en 3D). ABO,
+  superficie; datos en `results/analysis/omnitree_abo_{32,64}.json`:
+  - 32³ (1 200 formas): `tile` 805 tokens (p95 1 788, máx. 2 471), 4,9 bits/token, 3 921 bits/forma; omnitree
+    364 (p95 922, máx. 1 650), 8,5 bits/token (2,1 + 4,8 + 1,6), 3 087 bits/forma; niveles 5 → 7,8 (máx. 13);
+    nivel más ancho ~117 tokens frente a 622. Sólido: 957 → 239.
+  - 64³ (300 formas, otra muestra que la de arriba): `tile` 2 930 (p95 6 606, máx. 11 065), 12 791 bits/forma;
+    omnitree 813 (mediana 326, p95 2 731, máx. 5 408), 6 901 bits/forma; niveles 6 → 10,3 (máx. 14). Sólido:
+    4 314 → 496.
+  - El ahorro crece con la resolución: −55 % de tokens a 32³, −72 % a 64³ (bits: −21 % y −46 %).
+- Plan acordado con el usuario (por fases): (1) medir, hecho; (2) portar `tile` a 3D como referencia y montar
+  datos + métrica; (3) omnitree con atención global; (4) atención local en ambos; (5) zonas calientes y
+  temperatura por nivel al muestrear. Empezar a 32³. Tabla final a igual cómputo, ~8 entrenamientos
+  (2 árboles × 2 atenciones × 2 semillas). En la sesión en la nube no hay GPU: el usuario lanza los entrenamientos.
+- Sin decidir: ABO (7 953 modelos, accesible desde la nube) o ShapeNet (si el usuario lo tiene en local).
 
 ## Pendiente
 
