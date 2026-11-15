@@ -45,11 +45,12 @@ def test_training_batch_hides_descendants_of_masked():
     assert torch.isfinite(loss_fn(model, b))
 
 
-@pytest.mark.parametrize("local", [None, (1, 0), (2, 1)])
-def test_cached_net_full_recompute_equals_forward(local):
+@pytest.mark.parametrize("local,ctx", [(None, False), (1, 0), (2, 1), (None, True), ((2, 1), True)][:0] or
+                         [(None, False), ((1, 0), False), ((2, 1), False), (None, True), ((2, 1), True)])
+def test_cached_net_full_recompute_equals_forward(local, ctx):
     torch.manual_seed(0)
     g = Grid(4)
-    model = QuadtreeTransformer(depth=4, dim=32, layers=2, heads=2, num_states=16, local=local).eval()
+    model = QuadtreeTransformer(depth=4, dim=32, layers=2, heads=2, num_states=16, local=local, ctx=ctx).eval()
     val, ex = g.from_images(_imgs(6))
     val[:, g.slices[3]] = T_MASK
     lab = torch.arange(6) % 10

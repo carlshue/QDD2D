@@ -53,8 +53,12 @@ def block(layer, q, kv, heads, allow=None, key_pad=None):
 
 class QuadtreeTransformer(nn.Module):
     def __init__(self, depth=5, dim=128, layers=4, heads=4, num_classes=10, dropout=0.0, use_time=False,
-                 num_states=NUM_STATES, local=None):
+                 num_states=NUM_STATES, local=None, ctx=False):
         super().__init__()
+        # ctx: cada token recibe además el estado de su padre y qué vecinas de su nivel existen (8 bits)
+        self.parent_emb = nn.Embedding(num_states + 3, dim) if ctx else None
+        self.nb_emb = nn.Embedding(256, dim) if ctx else None
+        self.register_buffer("level_off", torch.tensor([(4 ** l - 1) // 3 for l in range(depth + 2)]), persistent=False)
         self.local = local                # None = atención global; (radius, hub) = atención local (local_allow)
         self.heads = heads
         self.depth = depth
@@ -75,9 +79,8 @@ class QuadtreeTransformer(nn.Module):
         self.norm = nn.LayerNorm(dim)
         self.head = nn.Linear(dim, num_states)
 
-    def forward(self, state, level, y, x, pad_mask, label=None, t=None):
-        """state/level/y/x: (B, L) long; y, x en coordenadas de celda de su nivel.
-        pad_mask: (B, L) bool, True en el relleno. Devuelve logits (B, L, 3)."""
+    def embed(self, state, level, y, x, pad_mask, label=None, t=None):
+        """Entrada de la primera capa: estado + nivel + posición + clase (+ tiempo, + contexto local)."""
         cell = 2 ** (self.depth - level)       # lado de la celda en píxeles
         cy = 2 * y * cell + cell               # centro, en medios píxeles
         cx = 2 * x * cell + cell
@@ -90,6 +93,35 @@ class QuadtreeTransformer(nn.Module):
             freqs = torch.exp(-math.log(10000.0) * torch.arange(half, device=t.device) / half)
             ang = 1000.0 * t[:, None] * freqs[None]
             h = h + self.time_mlp(torch.cat([ang.sin(), ang.cos()], -1))[:, None, :]
+        if self.parent_emb is not None:
+            n = int(self.level_off[-1])                    # tabla densa nivel/y/x -> estado; n = hueco
+            none = self.num_states + 2
+            side = 1 << level
+            flat = torch.where(pad_mask, torch.full_like(level, n), self.level_off[level] + y * side + x)
+            table = torch.full((state.shape[0], n + 1), none, dtype=torch.long, device=state.device)
+            table.scatter_(1, flat, state)
+            table[:, n] = none
+            lp = (level - 1).clamp(min=0)
+            par = torch.where(level > 0, self.level_off[lp] + (y >> 1) * (1 << lp) + (x >> 1), torch.full_like(level, n))
+            h = h + self.parent_emb(table.gather(1, par))
+            bits = torch.zeros_like(level)
+            k = 0
+            for dy in (-1, 0, 1):
+                for dx in (-1, 0, 1):
+                    if dy == 0 and dx == 0:
+                        continue
+                    yy, xx = y + dy, x + dx
+                    ok = (yy >= 0) & (yy < side) & (xx >= 0) & (xx < side)
+                    idx = torch.where(ok, self.level_off[level] + yy.clamp(min=0) * side + xx.clamp(min=0), torch.full_like(level, n))
+                    bits = bits | ((table.gather(1, idx.clamp(max=n)) != none).long() << k)
+                    k += 1
+            h = h + self.nb_emb(bits)
+        return h
+
+    def forward(self, state, level, y, x, pad_mask, label=None, t=None):
+        """state/level/y/x: (B, L) long; y, x en coordenadas de celda de su nivel.
+        pad_mask: (B, L) bool, True en el relleno. Devuelve logits (B, L, 3)."""
+        h = self.embed(state, level, y, x, pad_mask, label, t)
         if self.local is not None:      # atención local: capas a mano, con la máscara compartida entre cabezas
             allow = local_allow(level, y, x, level, y, x, *self.local)
             for layer in self.encoder.layers:

@@ -165,18 +165,16 @@ class CachedNet:
     def __init__(self, model, grid, num, label=None):
         self.m, self.g = model, grid
         dev = grid.level.device
-        cell = 2 ** (model.depth - grid.level)
-        pos = model.level_emb(grid.level) + model.y_emb(2 * grid.y * cell + cell) + model.x_emb(2 * grid.x * cell + cell)
-        if label is None:
-            label = torch.full((num,), model.null_class, device=dev)
-        self.base = pos[None] + model.class_emb(label)[:, None, :]
+        self.label = label
+        self.shape = lambda t: t[None].expand(num, -1)
         self.cache = [None] + [torch.zeros(num, grid.n, model.dim, device=dev) for _ in model.encoder.layers]
         self.queries = 0      # celdas pasadas por la red
         self.pairs = 0        # pares consulta-contexto en la atención
 
     def __call__(self, val, ex, hot):
         m, g = self.m, self.g
-        self.cache[0] = m.state_emb(val) + self.base
+        self.cache[0] = m.embed(torch.where(ex, val, torch.full_like(val, T_PAD)), self.shape(g.level), self.shape(g.y),
+                                self.shape(g.x), ~ex, self.label)
         oe, pe = g.sequence(ex)
         oh, ph = g.sequence(hot)
         rows = torch.arange(len(val), device=val.device)[:, None].expand_as(oh)[~ph]

@@ -413,6 +413,32 @@ celdas que se van a destapar se eligen antes de evaluar y sólo ésas pasan por 
 
 - La atención local iguala a la global con 8,5 veces menos pares; con zonas calientes, ~19 veces menos.
 
+**128×128** (`--dataset quickdraw128`, ~519 tokens por dibujo, 4 capas, `--batch 128 --accum 2`, T 0,9;
+suelo de Fréchet 19,5–22,4; semilla 0 · semilla 1):
+
+| Caso | Fréchet | Celdas | Pares de atención |
+|---|---|---|---|
+| Global, todo recalculado | 74,2 · 77,1 | 7 500 | 2 880 000 |
+| Global, calor 1 | 79,9 · 77,9 | 3 570 | 1 340 000 |
+| Global, calor 1 + perezosa | 77,8 · 73,9 | 2 270 | 860 000 |
+| Local, todo recalculado | 76,1 · 82,3 | 7 510 | 161 000 |
+| Local, calor 1 | 70,9 · 80,3 | 3 710 | 62 000 |
+| Local, calor 2 + perezosa | 75,3 · 78,9 | 3 850 | 65 000 |
+
+- La ventaja de la atención local crece con la resolución: 8,5× menos pares a 64×64, 18× a 128×128
+  (con zonas calientes, ~19× y ~45×), a cambio de 2–5 puntos de Fréchet.
+- Las zonas calientes siguen sin costar calidad a 128×128.
+- Todos quedan lejos del suelo: 4 capas se quedan cortas a esta resolución.
+
+**Temperatura por nivel** (64×64): los niveles gruesos (0–3) son los sensibles, con óptimo en 0,9; en los
+dos niveles finos 0,8 mejora ~1–1,5 puntos en los cuatro modelos (4 capas: 34,3 · 32,9 → 33,3 · 31,2;
+8 capas: 24,2 · 26,0 → 23,3 · 24,6). `levels_sweep --ltemps 0.9,0.9,0.9,0.9,0.8,0.8`.
+
+**Tiempo real de muestreo** (lote de 250, esta implementación densa): las zonas calientes aceleran
+1,4–1,9× (64×64, 8 capas: 6,4 → 3,3–3,8 ms por muestra; 128×128: 10,7 → 6,0–7,7), menos que el recuento
+de celdas (2–3×) por la sobrecarga fija. La atención local no ahorra tiempo aquí: se calculan todos los
+pares y se tapan; el ahorro de pares es el de una implementación dispersa, que no está hecha.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión

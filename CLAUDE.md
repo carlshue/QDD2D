@@ -190,6 +190,13 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
   `results/classifier_quickdraw128.pt` (96,3 %), suelo de Fréchet 19,5–22,4. Con 128×128 hace falta
   `--batch 128 --accum 2` (memoria). La gráfica de 16 GB no aguanta entrenar y muestrear a la vez.
 
+- 128×128, 4 capas (semilla 0 · 1): global 74,2 · 77,1 con 2,9 M de pares; local 76,1 · 82,3 con 161 000
+  (18× menos; a 64×64 eran 8,5×); las zonas calientes no cuestan calidad. Todo lejos del suelo (~20).
+- Temperatura por nivel: los niveles gruesos mandan (0,9); en los dos finos 0,8 da ~1–1,5 puntos.
+- Tiempo real: zonas calientes 1,4–1,9× más rápido (no 2–3×); la atención local no ahorra tiempo en
+  esta implementación (máscara sobre atención densa). Falta una implementación dispersa.
+- `--ctx`: estado del padre + vecinas existentes como entrada (`qd_tile_ctx*`, `qd_tile_locctx*`).
+
 ## Pendiente
 
 1. A 64×64: más semillas y/o modelo mayor o más pasos para bajar la varianza entre entrenamientos
