@@ -23,7 +23,8 @@ def load_model(path, device):
     method = a.get("method", "grow")
     model = QuadtreeTransformer(depth=ck["depth"], dim=a["dim"], layers=a["layers"], heads=a["heads"],
                                 use_time=(method in ("edit", "grow_merge")),
-                                **({"num_states": 16} if method == "tile" else {})).to(device)
+                                **({"num_states": 16} if method in ("tile", "tile_joint") else {}),
+                                local=tuple(a["local"]) if a.get("local") else None).to(device)
     model.load_state_dict(ck["model"])
     model.eval()
     return model, {"method": method, "depth": ck["depth"], "prior": ck.get("prior"), "args": a,

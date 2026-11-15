@@ -13,10 +13,25 @@ MASK = NUM_STATES      # id de entrada para "nodo aún sin decidir"
 PAD = NUM_STATES + 1   # id de entrada para relleno del lote
 
 
+def local_allow(lq, yq, xq, lk, yk, xk, radius, hub):
+    """Atención local sobre el árbol. Devuelve (B, Lq, Lk) bool: la consulta q puede mirar a la clave k si
+    k está en su mismo nivel a distancia <= radius, es un antecesor suyo, es una hija directa, o una de
+    las dos está en un nivel <= hub (celdas gruesas, que ven y son vistas por todas)."""
+    li, lj = lq[:, :, None], lk[:, None, :]
+    yi, yj, xi, xj = yq[:, :, None], yk[:, None, :], xq[:, :, None], xk[:, None, :]
+    same = (li == lj) & ((yi - yj).abs() <= radius) & ((xi - xj).abs() <= radius)
+    d = (li - lj).clamp(min=0)
+    anc = (li > lj) & ((yi >> d) == yj) & ((xi >> d) == xj)
+    child = (lj == li + 1) & ((yj >> 1) == yi) & ((xj >> 1) == xi)
+    return same | anc | child | (li <= hub) | (lj <= hub)
+
+
 class QuadtreeTransformer(nn.Module):
     def __init__(self, depth=5, dim=128, layers=4, heads=4, num_classes=10, dropout=0.0, use_time=False,
-                 num_states=NUM_STATES):
+                 num_states=NUM_STATES, local=None):
         super().__init__()
+        self.local = local                # None = atención global; (radius, hub) = atención local (local_allow)
+        self.heads = heads
         self.depth = depth
         side = 2 ** depth
         self.num_states = num_states      # ids de entrada extra: num_states = MASK, num_states + 1 = PAD
@@ -50,7 +65,11 @@ class QuadtreeTransformer(nn.Module):
             freqs = torch.exp(-math.log(10000.0) * torch.arange(half, device=t.device) / half)
             ang = 1000.0 * t[:, None] * freqs[None]
             h = h + self.time_mlp(torch.cat([ang.sin(), ang.cos()], -1))[:, None, :]
-        h = self.encoder(h, src_key_padding_mask=pad_mask)
+        mask = None
+        if self.local is not None:
+            mask = ~local_allow(level, y, x, level, y, x, *self.local)
+            mask = mask.repeat_interleave(self.heads, 0)
+        h = self.encoder(h, mask=mask, src_key_padding_mask=pad_mask)
         logits = self.head(self.norm(h))
         if self.num_states != NUM_STATES:      # 'tile': sin estado SPLIT que prohibir
             return logits

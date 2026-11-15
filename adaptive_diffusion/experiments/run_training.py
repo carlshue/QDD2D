@@ -55,6 +55,8 @@ def main():
     p.add_argument("--save_every", type=int, default=2000)
     p.add_argument("--accum", type=int, default=1,
                    help="acumular gradiente de N lotes por paso (lote efectivo = batch × N); para gráficas con poca memoria")
+    p.add_argument("--local", type=int, nargs=2, default=None, metavar=("RADIO", "NIVEL"),
+                   help="atención local: vecinas a distancia RADIO, antecesores e hijas; los niveles <= NIVEL son globales")
     p.add_argument("--init", default=None,
                    help="checkpoint del que partir (afinado). Puede ser de otro método: un 'grow' no tiene "
                         "entrada de tiempo, así que esa parte arranca en cero y no altera la red de partida")
@@ -136,7 +138,8 @@ def main():
 
     model = QuadtreeTransformer(depth=depth, dim=args.dim, layers=args.layers, heads=args.heads,
                                 use_time=(args.method not in ("grow", "tile")),
-                                **({"num_states": 16} if args.method == "tile" else {})).to(device)
+                                **({"num_states": 16} if args.method == "tile" else {}),
+                                local=tuple(args.local) if args.local else None).to(device)
     if args.init:
         ck = torch.load(args.init, map_location=device)
         missing, unexpected = model.load_state_dict(ck["model"], strict=False)
