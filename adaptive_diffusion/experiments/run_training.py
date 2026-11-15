@@ -37,7 +37,7 @@ def main():
     p.add_argument("--corrupt", choices=["prior", "self", "both"], default="prior",
                    help="sólo grow_merge: los nodos decididos se estropean con el ruido (prior), con los errores "
                         "de la propia red (self) o con ambos (both)")
-    p.add_argument("--dataset", choices=["mnist", "quickdraw"], default="mnist")
+    p.add_argument("--dataset", choices=["mnist", "quickdraw", "quickdraw128"], default="mnist")
     p.add_argument("--steps", type=int, default=20000)
     p.add_argument("--batch", type=int, default=64)
     p.add_argument("--lr", type=float, default=3e-4)

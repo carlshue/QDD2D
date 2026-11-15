@@ -368,6 +368,51 @@ que `grow` (30 000 pasos a 1e-3 + 5 000 a 3e-4), 2 semillas. Fréchet medio (sem
   la mitad del cómputo del `grow` de 4 capas y cerca del suelo de datos reales (15–18). El óptimo sigue
   en 0,9 y es estrecho (0,95: 25,2 · 29,3; 0,85: 29,5 · 30,4). Entrena en ~1 h 10 min + 8 min de afinado.
 
+## 3.8 Zonas calientes, generación conjunta y atención local (noviembre de 2026)
+
+Código: `models/tile_joint.py` (representación densa, `CachedNet`, `sample`, `sample_levels`),
+`experiments/train_joint.py`, `experiments/joint_sweep.py`, `experiments/levels_sweep.py`.
+Quick, Draw! 64×64, 2000 muestras, 3 semillas de muestreo, T 0,9, Fréchet medio (semilla 0 · semilla 1).
+
+**Zonas calientes** (sin reentrenar; sobre los modelos `tile` de 3.7). Una celda está caliente si está
+tapada o si algo cambió en ella, su padre o sus hijas en los últimos `heat` pasos. Sólo las calientes
+pasan por la red; las frías conservan sus activaciones y sirven de contexto. *Perezosa* (`lazy`): las
+celdas que se van a destapar se eligen antes de evaluar y sólo ésas pasan por la red.
+
+| Modelo | Todo recalculado | Calor 1 | Calor 1 + perezosa |
+|---|---|---|---|
+| `tile` 4 capas | 33,1 · 32,4 (3 210 celdas) | 33,1 · 34,6 (1 600) | 33,2 · 33,3 (1 020) |
+| `tile` 8 capas | 24,8 · 26,8 (3 215) | 25,2 · 26,8 (1 595) | 27,4 · 29,3 (1 020) |
+
+- Mitad de celdas sin pérdida; con evaluación perezosa, un tercio (en 8 capas cuesta ~2,5 puntos).
+- Con evaluación perezosa el número de pasos por nivel no cuesta (16–64 pasos: ~1 045 celdas) ni mejora.
+- Calor 0 rompe las muestras (Fréchet 300–900): una celda recién decidida debe recalcularse una vez.
+- Destapar primero las celdas más seguras hunde la variedad (Fréchet ~340 con 98 % de acierto).
+
+**Generación conjunta de todos los niveles** (`tile_joint`, al estilo de JoVox, 4 capas, misma receta):
+
+| Pasos | Sin reenmascarar | Reenmascarando lo más antiguo | Celdas |
+|---|---|---|---|
+| 16 (T 0,8) | 41,8 · 41,4 | 45,4 · 42,5 | ~1 350–1 600 |
+| 32 | 40,8 · 40,3 | 40,0 · 36,5 | ~3 250–3 550 |
+| 64 | 36,9 · 35,7 | 37,0 · 33,9 | ~7 000–7 400 |
+
+- A igual cómputo pierde frente a nivel a nivel (32–33 con 3 210 celdas); con el doble se acerca.
+- Reenmascarar lo antiguo da 0–4 puntos; reenmascarar por confianza hunde el Fréchet (>75).
+- Las zonas calientes también valen aquí: calor 1 da ~la mitad de celdas con ±1–2 puntos.
+
+**Atención local** (`run_training --local RADIO NIVEL`): cada celda mira a las de su nivel a distancia
+<= RADIO, a sus antecesores y a sus hijas; los niveles <= NIVEL son globales. Con `--local 2 1`:
+
+| Caso | Fréchet | Celdas | Pares de atención |
+|---|---|---|---|
+| `tile` global, todo recalculado | 33,1 · 32,4 | 3 210 | 580 000 |
+| `tile` local, todo recalculado | 36,3 · 32,0 | 3 215 | 68 000 |
+| `tile` local, calor 2 + perezosa | 32,6 · 32,9 | 1 720 | 30 000 |
+| `tile` local, calor 1 + perezosa | 34,4 · 41,4 | 1 055 | 18 000 |
+
+- La atención local iguala a la global con 8,5 veces menos pares; con zonas calientes, ~19 veces menos.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión

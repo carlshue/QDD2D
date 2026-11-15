@@ -6,6 +6,7 @@ nodos enmascarados.
 import math
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from structures.binary_quadtree import NUM_STATES, SPLIT
 
@@ -17,6 +18,7 @@ def local_allow(lq, yq, xq, lk, yk, xk, radius, hub):
     """Atención local sobre el árbol. Devuelve (B, Lq, Lk) bool: la consulta q puede mirar a la clave k si
     k está en su mismo nivel a distancia <= radius, es un antecesor suyo, es una hija directa, o una de
     las dos está en un nivel <= hub (celdas gruesas, que ven y son vistas por todas)."""
+    lq, yq, xq, lk, yk, xk = (t.to(torch.int16) for t in (lq, yq, xq, lk, yk, xk))     # (B, Lq, Lk) pesa: enteros cortos
     li, lj = lq[:, :, None], lk[:, None, :]
     yi, yj, xi, xj = yq[:, :, None], yk[:, None, :], xq[:, :, None], xk[:, None, :]
     same = (li == lj) & ((yi - yj).abs() <= radius) & ((xi - xj).abs() <= radius)
@@ -24,6 +26,29 @@ def local_allow(lq, yq, xq, lk, yk, xk, radius, hub):
     anc = (li > lj) & ((yi >> d) == yj) & ((xi >> d) == xj)
     child = (lj == li + 1) & ((yj >> 1) == yi) & ((xj >> 1) == xi)
     return same | anc | child | (li <= hub) | (lj <= hub)
+
+
+def block(layer, q, kv, heads, allow=None, key_pad=None):
+    """Una capa del codificador (pre-norma) con consultas q (B, Lq, d) y contexto kv (B, Lk, d).
+    allow (B, Lq, Lk) bool: pares permitidos; key_pad (B, Lk) bool: relleno. Mismos pesos que
+    nn.TransformerEncoderLayer, pero la máscara no se copia por cabeza ni se pasa a flotante."""
+    at = layer.self_attn
+    b, lq, d = q.shape
+    w, bias = at.in_proj_weight, at.in_proj_bias
+    qn, kn = layer.norm1(q), layer.norm1(kv)
+    split = lambda t: t.view(b, -1, heads, d // heads).transpose(1, 2)
+    qq = split(F.linear(qn, w[:d], bias[:d]))
+    kk = split(F.linear(kn, w[d:2 * d], bias[d:2 * d]))
+    vv = split(F.linear(kn, w[2 * d:], bias[2 * d:]))
+    mask = None
+    if allow is not None or key_pad is not None:
+        mask = torch.ones(b, lq, kv.shape[1], dtype=torch.bool, device=q.device) if allow is None else allow
+        if key_pad is not None:
+            mask = mask & ~key_pad[:, None, :]
+        mask = (mask | ~mask.any(-1, keepdim=True))[:, None]      # una fila sin nada permitido (relleno) daría NaN
+    o = F.scaled_dot_product_attention(qq, kk, vv, attn_mask=mask)
+    h = q + at.out_proj(o.transpose(1, 2).reshape(b, lq, d))
+    return h + layer.linear2(layer.activation(layer.linear1(layer.norm2(h))))
 
 
 class QuadtreeTransformer(nn.Module):
@@ -65,11 +90,12 @@ class QuadtreeTransformer(nn.Module):
             freqs = torch.exp(-math.log(10000.0) * torch.arange(half, device=t.device) / half)
             ang = 1000.0 * t[:, None] * freqs[None]
             h = h + self.time_mlp(torch.cat([ang.sin(), ang.cos()], -1))[:, None, :]
-        mask = None
-        if self.local is not None:
-            mask = ~local_allow(level, y, x, level, y, x, *self.local)
-            mask = mask.repeat_interleave(self.heads, 0)
-        h = self.encoder(h, mask=mask, src_key_padding_mask=pad_mask)
+        if self.local is not None:      # atención local: capas a mano, con la máscara compartida entre cabezas
+            allow = local_allow(level, y, x, level, y, x, *self.local)
+            for layer in self.encoder.layers:
+                h = block(layer, h, h, self.heads, allow, pad_mask)
+        else:
+            h = self.encoder(h, src_key_padding_mask=pad_mask)
         logits = self.head(self.norm(h))
         if self.num_states != NUM_STATES:      # 'tile': sin estado SPLIT que prohibir
             return logits

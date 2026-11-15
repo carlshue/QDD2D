@@ -1,5 +1,5 @@
 """Punto único para cargar un conjunto de imágenes binarias por nombre."""
-DATASETS = ("mnist", "quickdraw")
+DATASETS = ("mnist", "quickdraw", "quickdraw128")
 
 
 def load_images(name="mnist", train=True):
@@ -10,6 +10,9 @@ def load_images(name="mnist", train=True):
     if name == "quickdraw":
         from data.quickdraw import load_quickdraw
         return load_quickdraw(train=train)
+    if name == "quickdraw128":
+        from data.quickdraw import load_quickdraw
+        return load_quickdraw(train=train, size=128)
     raise ValueError(f"conjunto de datos desconocido: {name}")
 
 

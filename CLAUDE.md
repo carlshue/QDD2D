@@ -173,6 +173,23 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
   128×128 o 3D. El usuario quiere estudiar además el tamaño de diccionario (bloques 2×2 → 4×4).
 - El usuario no quiere tandas de muchas horas: dar estimación de tiempo antes de lanzar.
 
+### Zonas calientes, generación conjunta y atención local (2026-11-15) — línea activa
+
+- Dirección elegida por el usuario: zonas calientes ("temple simulado") para no reevaluar todo en cada paso.
+- `models/tile_joint.py`: representación densa (`Grid`), `CachedNet` (evalúa sólo las celdas pedidas con
+  las demás como contexto guardado), `sample` (conjunto, estilo JoVox) y `sample_levels` (nivel a nivel
+  sobre modelos `tile`, con `heat`, `lazy`, `order`). Barridos: `experiments/joint_sweep.py` y
+  `experiments/levels_sweep.py`. No hace falta reentrenar para usar zonas calientes.
+- Resultado: calor 1 = mitad de celdas sin pérdida; + perezosa = un tercio (4 capas sin pérdida, 8 capas
+  −2,5 puntos). Calor 0 rompe. Orden o reenmascarado por confianza: descartados (hunden la variedad).
+- Generación conjunta (`train_joint.py`, `qd_joint*`): pierde frente a nivel a nivel a igual cómputo
+  (40 · 36,5 con ~3 300 celdas frente a 32–33). Reenmascarar lo antiguo aporta 0–4 puntos.
+- Atención local (`--local 2 1`, `qd_tile_loc*_ft`): 36,3 · 32,0 con 8,5× menos pares de atención; con
+  calor 2 + perezosa 32,6 · 32,9 con ~19× menos pares. Tabla en README 3.8.
+- 128×128: `--dataset quickdraw128` (~519 tokens por dibujo, máx. >2 000), clasificador
+  `results/classifier_quickdraw128.pt` (96,3 %), suelo de Fréchet 19,5–22,4. Con 128×128 hace falta
+  `--batch 128 --accum 2` (memoria). La gráfica de 16 GB no aguanta entrenar y muestrear a la vez.
+
 ## Pendiente
 
 1. A 64×64: más semillas y/o modelo mayor o más pasos para bajar la varianza entre entrenamientos

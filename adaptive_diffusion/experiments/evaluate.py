@@ -25,7 +25,8 @@ from experiments.common import generate, load_model, pick_device
 class Classifier(nn.Module):
     def __init__(self, size=32):
         super().__init__()
-        self.c4 = nn.Conv2d(64, 64, 3, padding=1) if size == 64 else None     # 64x64: una etapa más
+        self.c4 = nn.Conv2d(64, 64, 3, padding=1) if size >= 64 else None     # 64x64: una etapa más
+        self.c5 = nn.Conv2d(64, 64, 3, padding=1) if size >= 128 else None    # 128x128: otra
         self.c1 = nn.Conv2d(1, 32, 3, padding=1)
         self.c2 = nn.Conv2d(32, 64, 3, padding=1)
         self.c3 = nn.Conv2d(64, 64, 3, padding=1)
@@ -38,6 +39,8 @@ class Classifier(nn.Module):
         x = F.max_pool2d(F.relu(self.c3(x)), 2)
         if self.c4 is not None:
             x = F.max_pool2d(F.relu(self.c4(x)), 2)
+        if self.c5 is not None:
+            x = F.max_pool2d(F.relu(self.c5(x)), 2)
         return F.relu(self.fc(x.flatten(1)))
 
     def forward(self, x):

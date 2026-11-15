@@ -24,7 +24,7 @@ import math
 import torch
 import torch.nn.functional as F
 
-from models.quadtree_transformer import local_allow
+from models.quadtree_transformer import block, local_allow
 from models.tile_grow import T_MASK, T_PAD, T_STATES
 
 
@@ -182,15 +182,12 @@ class CachedNet:
         rows = torch.arange(len(val), device=val.device)[:, None].expand_as(oh)[~ph]
         cols = oh[~ph]
         take = lambda t, o: t.gather(1, o[..., None].expand(-1, -1, t.shape[-1]))
-        am, npairs = None, hot.sum(1) * ex.sum(1)
+        allow, npairs = None, hot.sum(1) * ex.sum(1)
         if m.local is not None:
             allow = local_allow(g.level[oh], g.y[oh], g.x[oh], g.level[oe], g.y[oe], g.x[oe], *m.local)
             npairs = (allow & ~ph[:, :, None] & ~pe[:, None, :]).sum((1, 2))
-            am = (~allow).repeat_interleave(m.heads, 0)
         for j, layer in enumerate(m.encoder.layers):
-            q, kv = take(self.cache[j], oh), layer.norm1(take(self.cache[j], oe))
-            h = q + layer.self_attn(layer.norm1(q), kv, kv, key_padding_mask=pe, attn_mask=am, need_weights=False)[0]
-            h = h + layer.linear2(layer.activation(layer.linear1(layer.norm2(h))))
+            h = block(layer, take(self.cache[j], oh), take(self.cache[j], oe), m.heads, allow, pe)
             self.cache[j + 1][rows, cols] = h[~ph].to(self.cache[j + 1].dtype)
         logits = torch.full((len(val), g.n, m.num_states), float("-inf"), device=val.device)
         logits[rows, cols] = m.head(m.norm(self.cache[-1][rows, cols])).float()
