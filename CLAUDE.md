@@ -215,6 +215,26 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
   y ~42 000 pares de 69 000. Con atención local y 8 capas el ahorro de las zonas calientes es pequeño.
 - Pendiente: atención dispersa real para que el ahorro de pares se vea en tiempo.
 
+### Omnitrees: medida de la estructura, sin entrenar nada (2026-11-15)
+
+- Omnitree (arXiv 2508.06316): cada nodo mixto elige qué ejes partir (2, 4 u 8 hijos en 3D), no todos a la
+  vez. En cinco búsquedas no salió nadie generando con ellos (viene de simulación; lo más cercano, BSP-Net).
+- `experiments/omnitree_stats.py` (2D) y `experiments/omnitree_stats3d.py` (N-D, mallas `.npz` con `v`, `f`):
+  árbol exacto con menos nodos internos por programación dinámica sobre todas las cajas diádicas. Un token =
+  nodo mixto (etiqueta de corte + estado de cada hijo). El 3D reproduce las cifras 2D y coincide con fuerza bruta.
+- 2D (quadtree → omnitree, tokens): MNIST 52,8 → 50,0; Quick, Draw! 64×64 240,6 → 213,3 (−11 %); 128×128
+  475,6 → 384,0 (−19 %). Bits por imagen casi iguales; niveles 6 → 7,1 (máx. 9). En 2D no compensa.
+- 3D, 300 modelos de ABO (productos de Amazon, geometría bajada por rangos HTTP; ShapeNet no es accesible
+  desde la sesión en la nube) a 64³, ocupación de superficie: octree 3 137 → omnitree 1 149 tokens (−63 %);
+  sin categorías planas (alfombras, cuadros, espejos, cojines) −59 %; sillas −50 %, sofás −58 %, mesas −72 %,
+  lámparas −31 %, apliques −15 %. Sólido relleno: 1 892 → 660 (−65 %). Percentiles del ahorro por forma:
+  29 / 47 / 64 / 87 / 97 %.
+- Coste: profundidad media 6 → 10,5 (máx. 15); 8,5 bits por token frente a 5,5 (orden 0), así que los bits
+  por forma bajan menos, −43 %; vocabulario de miles de símbolos (habría que factorizar la predicción).
+- Depende de la alineación con los ejes: girando 30° sobre la vertical (100 formas, sin planas) el ahorro
+  baja de −64 % a −38 %.
+- Pendiente si se sigue: repetir a 128³, definir el token factorizado y decidir cómo generar con ~10 niveles.
+
 ## Pendiente
 
 1. A 64×64: más semillas y/o modelo mayor o más pasos para bajar la varianza entre entrenamientos

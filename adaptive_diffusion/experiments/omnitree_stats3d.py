@@ -173,6 +173,7 @@ def main():
     p.add_argument("--num", type=int, default=300)
     p.add_argument("--batch", type=int, default=16)
     p.add_argument("--kinds", default="oct,omni,bin")
+    p.add_argument("--rotate", type=float, default=0.0, help="grados de giro alrededor del eje vertical (Y)")
     p.add_argument("--out", default=None, help="json con los resultados por forma")
     args = p.parse_args()
 
@@ -180,7 +181,11 @@ def main():
     names, surf, solid = [], [], []
     for path in files:
         m = np.load(path)
-        vox = voxelize_surface(m["v"].astype(np.float64), m["f"], args.res)
+        v = m["v"].astype(np.float64)
+        if args.rotate:
+            t = np.deg2rad(args.rotate)
+            v = v @ np.array([[np.cos(t), 0, np.sin(t)], [0, 1, 0], [-np.sin(t), 0, np.cos(t)]]).T
+        vox = voxelize_surface(v, m["f"], args.res)
         if vox is None:
             continue
         names.append(os.path.splitext(os.path.basename(path))[0])
