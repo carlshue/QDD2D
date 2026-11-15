@@ -272,6 +272,8 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
   donde la pérdida baja en `tile` y `omni`. **No se ha ejecutado en GPU**: memoria y tiempos sin medir.
   Si `tile` no cabe en memoria, usar `--batch 32 --accum 4` (mismo lote efectivo que 64 × 2).
 - Pendiente del plan: atención local para cajas (fase 4), zonas calientes y temperatura por nivel (fase 5), 64³.
+- **`RUNJOBS.md` (raíz del repo)**: pasos exactos para lanzar en local la primera comparación (pruebas rápidas,
+  ajuste de memoria, 4 entrenamientos en dos cadenas, una por gráfica) y qué devolver. Seguirlo tal cual.
 
 ## Pendiente
 

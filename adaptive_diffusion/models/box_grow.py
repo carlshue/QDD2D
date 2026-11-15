@@ -71,7 +71,9 @@ class BoxDataset(Dataset):
         self.labels = np.concatenate(labs).astype(np.int64)
         if cache:
             os.makedirs(os.path.dirname(cache), exist_ok=True)
-            np.savez(cache, tokens=self.tokens, offsets=self.offsets, labels=self.labels)
+            tmp = f"{cache}.{os.getpid()}.tmp.npz"            # escritura atómica: dos procesos pueden coincidir
+            np.savez(tmp, tokens=self.tokens, offsets=self.offsets, labels=self.labels)
+            os.replace(tmp, cache)
 
     def __len__(self):
         return len(self.labels)
