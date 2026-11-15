@@ -456,6 +456,14 @@ semilla sube y otra baja: sin efecto medible. La atención ya saca esa informaci
 - Aquí las zonas calientes sí cuestan: calor 2 pierde 2–6 puntos y calor 1 unos 10. Con atención local y
   más capas el contexto guardado se desfasa más; con atención global calor 1 no perdía nada.
 
+**Duración y radio del calor** (local 8 capas): recalentar vecinas a distancia 1–2 apenas cambia nada;
+alargar el calor sí. Calor 3 da 23,6 · 26,8 (todo recalculado: 22,7 · 25,4) con ~2 450 celdas y ~42 000
+pares: el ahorro sobre la atención local queda en ~1,3× en celdas y ~1,6× en pares.
+
+**Bibliografía:** reutilizar activaciones de tokens que no cambian ya está publicado (ReCAP 2505.19089,
+LazyMAR, ToCa, EntropyCache 2603.18489, Elastic-Cache, d2Cache). No he visto el criterio de vecindad en
+el árbol ni la combinación con atención local; detalle en CLAUDE.md.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión

@@ -209,9 +209,10 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
   d2Cache, SureLock (texto). Leídos en el texto: ReCAP y EntropyCache; el resto sólo por resumen.
   Lo que no he visto: criterio de vecindad sobre un árbol (padre, hijas, vecinas) ni combinado con atención
   local. Es una diferencia pequeña; como aportación sola no basta.
-- Radio del calor con atención local de 8 capas (barrido `levels_*_radius`, parcial al cerrar la sesión):
-  recalentar vecinas a distancia 1–2 apenas ayuda (semilla 0: 33,4 → 31,9–32,3; semilla 1: 35,6 → 36,9).
-  La sospecha de que faltaba recalentar vecinas no se confirma. Falta ver calor 2–3 con radio 1–2.
+- Radio del calor con atención local de 8 capas (`levels_qd_tile_loc_L8*_ft_radius.json`): el radio
+  (vecinas a distancia 1–2) apenas importa; lo que manda es cuántos pasos dura el calor. Calor 3 recupera
+  la calidad: 23,6 · 26,8 frente a 22,7 · 25,4 recalculando todo, pero con ~2 450 celdas de 3 245 (×1,3)
+  y ~42 000 pares de 69 000. Con atención local y 8 capas el ahorro de las zonas calientes es pequeño.
 - Pendiente: atención dispersa real para que el ahorro de pares se vea en tiempo.
 
 ## Pendiente
