@@ -166,6 +166,67 @@ def entropy_bits(hists):
     return float(-(p * np.log2(p)).sum())
 
 
+def merge_hists(hists):
+    total = {}
+    for h in hists:
+        for c, k in h.items():
+            total[int(c)] = total.get(int(c), 0) + int(k)
+    return total
+
+
+def _H(counts):
+    p = np.array(list(counts.values()), float)
+    p /= p.sum()
+    return float(-(p * np.log2(p)).sum())
+
+
+def token_pieces(hist, d):
+    """Descompone el token del omnitree en tres piezas y mide cada una (entropía de orden 0, en bits):
+    corte (qué ejes se parten), ocupación (qué hijos tienen contenido) y lleno (cuáles de esos hijos son
+    cajas llenas en vez de seguir subdividiéndose). Las dos últimas, condicionadas a las anteriores."""
+    masks = cut_options("omni", d)
+    cut, cut_occ, cut_occ_full, occ_only, full_only = {}, {}, {}, {}, {}
+    for code, k in hist.items():
+        ci, tern = divmod(int(code), 10000)
+        nchild = 2 ** sum(masks[ci])
+        digits = [(tern // 3 ** j) % 3 for j in range(nchild)]
+        occ = sum(1 << j for j, s in enumerate(digits) if s != 0)
+        full = sum(1 << j for j, s in enumerate(digits) if s == 1)
+        for table, key in ((cut, ci), (cut_occ, (ci, occ)), (cut_occ_full, (ci, occ, full)),
+                           (occ_only, (nchild, occ)), (full_only, (nchild, full))):
+            table[key] = table.get(key, 0) + k
+    h_cut, h_co, h_cof = _H(cut), _H(cut_occ), _H(cut_occ_full)
+    return {"bits_corte": h_cut, "bits_ocupacion": h_co - h_cut, "bits_lleno": h_cof - h_co, "bits_total": h_cof,
+            "simbolos_corte": len(cut), "simbolos_ocupacion": len(occ_only), "simbolos_lleno": len(full_only),
+            "simbolos_conjuntos": len(cut_occ_full),
+            "reparto_cortes": {"".join(map(str, masks[ci])): round(100 * k / sum(cut.values()), 1)
+                               for ci, k in sorted(cut.items())}}
+
+
+def tile_stats(vox):
+    """Referencia de la bibliografía (OctLLM, JoVox, nuestro `tile`): un token por celda con contenido en los
+    niveles por encima del más fino; su valor es qué hijos tienen contenido (un byte en 3D)."""
+    n, S, d = vox.shape[0], vox.shape[1], vox.ndim - 1
+    D = int(np.log2(S))
+    cur, tokens, per_level, hist = vox.astype(bool), np.zeros(n), [], {}
+    for _ in range(D):
+        split = []
+        for _ax in range(d):
+            split += [cur.shape[1] // 2, 2]
+        blocks = cur.reshape((n,) + tuple(split))
+        order = [0] + [1 + 2 * i for i in range(d)] + [2 + 2 * i for i in range(d)]
+        blocks = blocks.transpose(order).reshape((n,) + (cur.shape[1] // 2,) * d + (-1,))
+        parent = blocks.any(-1)
+        byte = (blocks * (1 << np.arange(blocks.shape[-1]))).sum(-1)[parent]
+        for c, k in zip(*np.unique(byte, return_counts=True)):
+            hist[int(c)] = hist.get(int(c), 0) + int(k)
+        cnt = parent.reshape(n, -1).sum(1)
+        tokens += cnt
+        per_level.append(float(cnt.mean()))
+        cur = parent
+    return {"tokens": tokens, "hist": hist, "tokens_por_nivel": per_level[::-1]}
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--meshes", required=True, help="carpeta con .npz (v, f)")
@@ -204,11 +265,31 @@ def main():
             hojas = np.concatenate([q["hojas"] for q in parts])
             bits = entropy_bits([q["hist"] for q in parts])
             cuts = np.sum([q["cortes_por_n_ejes"] for q in parts], 0)
-            results[f"{occ_name}_{kind}"] = {"tokens": tok.tolist(), "prof": prof.tolist(), "hojas": hojas.tolist()}
+            hist = merge_hists([q["hist"] for q in parts])
+            per_level = np.sum([np.array(q["tokens_por_nivel"]) * len(q["tokens"]) for q in parts], 0) / len(tok)
+            results[f"{occ_name}_{kind}"] = {"tokens": tok.tolist(), "prof": prof.tolist(), "hojas": hojas.tolist(),
+                                             "tokens_por_nivel": np.round(per_level, 1).tolist(),
+                                             "hist": {str(c): k for c, k in hist.items()}}
             print(f"{occ_name:10s} {kind:4s} tokens {tok.mean():8.1f} (mediana {np.median(tok):.0f}, p95 "
                   f"{np.percentile(tok, 95):.0f}) | hojas {hojas.mean():8.1f} | prof. {prof.mean():.1f} (máx "
                   f"{prof.max():.0f}) | ~{bits:.2f} bits/token -> {bits * tok.mean():.0f} bits/forma | cortes de "
                   f"1/2/3 ejes: {np.round(100 * cuts / cuts.sum(), 1).tolist()} %", flush=True)
+            if kind == "omni":
+                pc = token_pieces(hist, occ.ndim - 1)
+                results[f"{occ_name}_{kind}"]["piezas"] = pc
+                print(f"{'':15s} token en 3 piezas: corte {pc['bits_corte']:.2f} + ocupación {pc['bits_ocupacion']:.2f} "
+                      f"+ lleno {pc['bits_lleno']:.2f} = {pc['bits_total']:.2f} bits | símbolos por pieza: "
+                      f"{pc['simbolos_corte']} / {pc['simbolos_ocupacion']} / {pc['simbolos_lleno']} "
+                      f"(juntos: {pc['simbolos_conjuntos']}) | máx. tokens {tok.max():.0f}", flush=True)
+                print(f"{'':15s} tokens por nivel: {np.round(per_level, 0).astype(int).tolist()}", flush=True)
+        ts = [tile_stats(occ[i:i + args.batch]) for i in range(0, len(occ), args.batch)]
+        tt = np.concatenate([q["tokens"] for q in ts])
+        tb = _H(merge_hists([q["hist"] for q in ts]))
+        lv = np.sum([np.array(q["tokens_por_nivel"]) * len(q["tokens"]) for q in ts], 0) / len(tt)
+        results[f"{occ_name}_tile"] = {"tokens": tt.tolist(), "bits_token": tb, "tokens_por_nivel": lv.tolist()}
+        print(f"{occ_name:10s} tile tokens {tt.mean():8.1f} (mediana {np.median(tt):.0f}, p95 {np.percentile(tt, 95):.0f}, "
+              f"máx {tt.max():.0f}) | {tb:.2f} bits/token -> {tb * tt.mean():.0f} bits/forma | por nivel: "
+              f"{np.round(lv, 0).astype(int).tolist()}", flush=True)
     if args.out:
         with open(args.out, "w", encoding="utf-8") as f:
             json.dump(results, f)
