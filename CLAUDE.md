@@ -195,7 +195,8 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 - Temperatura por nivel: los niveles gruesos mandan (0,9); en los dos finos 0,8 da ~1–1,5 puntos.
 - Tiempo real: zonas calientes 1,4–1,9× más rápido (no 2–3×); la atención local no ahorra tiempo en
   esta implementación (máscara sobre atención densa). Falta una implementación dispersa.
-- `--ctx`: estado del padre + vecinas existentes como entrada (`qd_tile_ctx*`, `qd_tile_locctx*`).
+- `--ctx` (estado del padre + vecinas existentes como entrada; `qd_tile_ctx*`, `qd_tile_locctx*`): sin
+  efecto medible (global 35,3 · 29,2; local 35,7 · 32,9). No insistir.
 
 ## Pendiente
 

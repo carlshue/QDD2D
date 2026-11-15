@@ -439,6 +439,10 @@ dos niveles finos 0,8 mejora ~1–1,5 puntos en los cuatro modelos (4 capas: 34,
 de celdas (2–3×) por la sobrecarga fija. La atención local no ahorra tiempo aquí: se calculan todos los
 pares y se tapan; el ahorro de pares es el de una implementación dispersa, que no está hecha.
 
+**Contexto local en la entrada** (`--ctx`: estado del padre y qué vecinas existen; 64×64, 4 capas, T 0,9,
+todo recalculado): global 35,3 · 29,2 (sin él 33,1 · 32,4); local 35,7 · 32,9 (sin él 36,3 · 32,0). Una
+semilla sube y otra baja: sin efecto medible. La atención ya saca esa información.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión
