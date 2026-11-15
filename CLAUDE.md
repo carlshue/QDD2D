@@ -201,8 +201,18 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 - Local con 8 capas (`qd_tile_loc_L8*_ft`): 22,7 · 25,4, igual que el global (23,3 · 24,6) con 8,5× menos
   pares. Pero ahí las zonas calientes cuestan: calor 2 da 24,8 · 31,5 y calor 1 ~34. Local + profundo +
   zonas calientes es la combinación que falta por arreglar.
-- Pendiente de esta línea: buscar bibliografía sobre zonas calientes / caché en generación enmascarada
-  (no hecho), y una atención dispersa real para que el ahorro de pares se vea en tiempo.
+- **Las zonas calientes no son nuevas (revisado 2026-11-15).** Reutilizar activaciones de tokens que no
+  cambian ya existe: ReCAP (arXiv 2505.19089, MaskGIT/MAR/MAGE, sin reentrenar, hasta 2,4× más rápido;
+  calendario fijo, sin criterio espacial), LazyMAR (ICCV 2025, 2,83×), ToCa (ICLR 2025, caché por token en
+  DiT con término de dispersión espacial), EntropyCache (2603.18489, NeurIPS 2026; recalcula los tapados +
+  los 64 decodificados más recientes, recálculo completo si la entropía supera un umbral), Elastic-Cache,
+  d2Cache, SureLock (texto). Leídos en el texto: ReCAP y EntropyCache; el resto sólo por resumen.
+  Lo que no he visto: criterio de vecindad sobre un árbol (padre, hijas, vecinas) ni combinado con atención
+  local. Es una diferencia pequeña; como aportación sola no basta.
+- Radio del calor con atención local de 8 capas (barrido `levels_*_radius`, parcial al cerrar la sesión):
+  recalentar vecinas a distancia 1–2 apenas ayuda (semilla 0: 33,4 → 31,9–32,3; semilla 1: 35,6 → 36,9).
+  La sospecha de que faltaba recalentar vecinas no se confirma. Falta ver calor 2–3 con radio 1–2.
+- Pendiente: atención dispersa real para que el ahorro de pares se vea en tiempo.
 
 ## Pendiente
 
