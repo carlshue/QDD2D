@@ -198,6 +198,12 @@ que las diferencias pequeñas no son concluyentes. Datos reales: 98,7–99,0 % d
 - `--ctx` (estado del padre + vecinas existentes como entrada; `qd_tile_ctx*`, `qd_tile_locctx*`): sin
   efecto medible (global 35,3 · 29,2; local 35,7 · 32,9). No insistir.
 
+- Local con 8 capas (`qd_tile_loc_L8*_ft`): 22,7 · 25,4, igual que el global (23,3 · 24,6) con 8,5× menos
+  pares. Pero ahí las zonas calientes cuestan: calor 2 da 24,8 · 31,5 y calor 1 ~34. Local + profundo +
+  zonas calientes es la combinación que falta por arreglar.
+- Pendiente de esta línea: buscar bibliografía sobre zonas calientes / caché en generación enmascarada
+  (no hecho), y una atención dispersa real para que el ahorro de pares se vea en tiempo.
+
 ## Pendiente
 
 1. A 64×64: más semillas y/o modelo mayor o más pasos para bajar la varianza entre entrenamientos

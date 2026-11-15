@@ -443,6 +443,19 @@ pares y se tapan; el ahorro de pares es el de una implementación dispersa, que 
 todo recalculado): global 35,3 · 29,2 (sin él 33,1 · 32,4); local 35,7 · 32,9 (sin él 36,3 · 32,0). Una
 semilla sube y otra baja: sin efecto medible. La atención ya saca esa información.
 
+**Atención local con 8 capas** (`qd_tile_loc_L8*_ft`, 64×64, niveles gruesos a 0,9 y finos a 0,8):
+
+| Caso | Fréchet | Celdas | Pares de atención |
+|---|---|---|---|
+| Global 8 capas, todo recalculado | 23,3 · 24,6 | 3 215 | 590 000 |
+| Local 8 capas, todo recalculado | 22,7 · 25,4 | 3 245 | 69 000 |
+| Local 8 capas, calor 2 | 24,8 · 31,5 | 2 120 | 36 500 |
+| Local 8 capas, calor 1 | 33,4 · 35,6 | 1 695 | 29 000 |
+
+- Con 8 capas la atención local iguala a la global con 8,5× menos pares.
+- Aquí las zonas calientes sí cuestan: calor 2 pierde 2–6 puntos y calor 1 unos 10. Con atención local y
+  más capas el contexto guardado se desfasa más; con atención global calor 1 no perdía nada.
+
 ## 4. Estado del arte
 
 ### 4.1 Fundamentos de difusión
