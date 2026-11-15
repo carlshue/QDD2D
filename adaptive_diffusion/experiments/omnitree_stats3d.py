@@ -24,44 +24,9 @@ import json
 import os
 import numpy as np
 
+from data.voxelize import fill_solid, voxelize_surface
+
 STATE_MIXED = 2
-
-
-def voxelize_surface(v, f, res, points=1_500_000, rng=None):
-    """Ocupación de superficie (res³, bool): muestrea puntos en los triángulos y los reparte en vóxeles."""
-    rng = rng or np.random.default_rng(0)
-    lo, hi = v.min(0), v.max(0)
-    v = (v - (lo + hi) / 2) / (hi - lo).max() * 0.98 + 0.5          # caja unidad, lado mayor = 0,98
-    a, b, c = v[f[:, 0]], v[f[:, 1]], v[f[:, 2]]
-    area = np.linalg.norm(np.cross(b - a, c - a), axis=1)
-    if not np.isfinite(area).all() or area.sum() <= 0:
-        return None
-    tri = rng.choice(len(f), points, p=area / area.sum())
-    u, w = rng.random(points), rng.random(points)
-    flip = u + w > 1
-    u[flip], w[flip] = 1 - u[flip], 1 - w[flip]
-    p = a[tri] + u[:, None] * (b[tri] - a[tri]) + w[:, None] * (c[tri] - a[tri])
-    idx = np.clip((p * res).astype(np.int64), 0, res - 1)
-    vox = np.zeros((res, res, res), bool)
-    vox[idx[:, 0], idx[:, 1], idx[:, 2]] = True
-    return vox
-
-
-def fill_solid(surface):
-    """Rellena el interior: todo lo que no se alcanza desde el borde por celdas vacías."""
-    free = ~surface
-    out = np.zeros_like(surface)
-    out[0], out[-1], out[:, 0], out[:, -1], out[:, :, 0], out[:, :, -1] = True, True, True, True, True, True
-    out &= free
-    while True:
-        grow = out.copy()
-        grow[1:] |= out[:-1]; grow[:-1] |= out[1:]
-        grow[:, 1:] |= out[:, :-1]; grow[:, :-1] |= out[:, 1:]
-        grow[:, :, 1:] |= out[:, :, :-1]; grow[:, :, :-1] |= out[:, :, 1:]
-        grow &= free
-        if (grow == out).all():
-            return ~out
-        out = grow
 
 
 def cut_options(kind, d):
@@ -246,7 +211,7 @@ def main():
         if args.rotate:
             t = np.deg2rad(args.rotate)
             v = v @ np.array([[np.cos(t), 0, np.sin(t)], [0, 1, 0], [-np.sin(t), 0, np.cos(t)]]).T
-        vox = voxelize_surface(v, m["f"], args.res)
+        vox = voxelize_surface(v, m["f"], args.res, points=1_500_000)
         if vox is None:
             continue
         names.append(os.path.splitext(os.path.basename(path))[0])
